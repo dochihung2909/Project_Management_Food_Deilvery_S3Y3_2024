@@ -1,0 +1,52 @@
+{% extends 'admin/base_site.html' %}
+
+{% block content %}
+<h1>THỐNG KÊ SỐ LƯỢNG</h1>
+<p>Hệ thống có tổng cộng: {{ total_user }} người dùng</p>
+<p>Hệ thống có tổng cộng: {{ total_restaurant }} nhà hàng</p>
+<ul>
+    {% for restaurant in restaurant_stats %}
+    <li><strong>{{ restaurant.name }}</strong> có  {{ restaurant.food_count }} món ăn</li>
+    {% endfor %}
+</ul>
+
+<canvas id="myChart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    let labels = [];
+    let values = [];
+
+    {% for restaurant in restaurant_stats %}
+    values.push({{ restaurant.food_count }})
+    labels.push('{{ restaurant.name }}')
+    {% endfor %}
+    window.onload = () => {
+          const ctx = document.getElementById('myChart');
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'So luong',
+                data: values,
+                borderWidth: 1,
+                backgroundColor: [
+                  'rgb(255, 99, 132)',
+                  'rgb(54, 162, 235)',
+                  'rgb(255, 205, 86)'
+                ],
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+    }
+</script>
+{% endblock %}

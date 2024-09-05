@@ -1,0 +1,30 @@
+Hướng dẫn chạy
+. Cài đặt môi trường ảo (Add Interpreter). Đảm bảo đã kích hoạt môi trường ảo (venv)
+. pip install -r requirements.txt
+. Tạo schema trong MySQL workbench
+. Nhập thông tin database trong file .env
+. python manage.py migrate
+. python manage.py migrate oauth2_provider
+. python manage.py runserver
+. Đăng kí application tại http://127.0.0.1:8000/o/applications/register/
+    + Lưu thông tin Client id, Client secret vào file .env
+    + Client type: Confidential
+    + Authorization grant type: Resource owner
+. Postman
+    Cách lấy access token
+    + POST http://127.0.0.1:8000/o/token/
+    + Body:
+        - grant_type: password
+        - username, password (superuser)
+        - client_id, client_secret (application)
+    Cách sử dụng access token
+    + Auth:
+        - Type: Bearer Token
+        - Token: dán mã access token vào
+    Hoặc
+    + Headers:
+        - Key: Authorization
+        - Value: Bearer <access token>
+. Django admin
+    + Upload ảnh trong RichTextField() (Image -> Upload -> Send it to the Server -> Image Info URL thêm /static để hiển
+    thị ảnh)
