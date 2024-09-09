@@ -3,10 +3,10 @@ from django.db.models import Count
 from django.template.response import TemplateResponse
 from django.urls import path
 from django.utils.safestring import mark_safe
+from django_ckeditor_5.widgets import CKEditor5Widget
 from . import dao
 from .models import *
 from django import forms
-from ckeditor_uploader.widgets import CKEditorUploadingWidget
 
 
 class RoleAdmin(admin.ModelAdmin):
@@ -23,10 +23,6 @@ class UserAdmin(admin.ModelAdmin):
 
     def img(self, user):
         if user:
-            # return mark_safe(
-            #     '<img src="/static/{url}" width="120" height="120" />' \
-            #         .format(url=user.avatar.name)
-            # )
             return mark_safe(f"<img width='120' height='120' src='{user.avatar.url}' />")
         return 'No image'
 
@@ -36,26 +32,20 @@ class UserAdmin(admin.ModelAdmin):
         }
 
 
-class EmployeeAdminForm(forms.ModelForm):
-    class Meta:
-        model = Employee
-        fields = '__all__'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['Employee'].queryset = Employee.objects.filter(role_id=3)
-
-
 class EmployeeAdmin(admin.ModelAdmin):
     list_display = ['id', 'username', 'res']
     list_filter = ['res']
-    form = EmployeeAdminForm
+    readonly_fields = ['img']
+
+    def img(self, employee):
+        if employee:
+            return mark_safe(f"<img width='120' height='120' src='{employee.avatar.url}' />")
+        return 'No image'
 
 
 class EmployeeInlineAdmin(admin.StackedInline):
     model = Employee
     fk_name = 'res'
-    form = EmployeeAdminForm
 
 
 class RestaurantCategoryAdmin(admin.ModelAdmin):
@@ -70,10 +60,6 @@ class RestaurantAdminForm(forms.ModelForm):
 
     def img(self, restaurant):
         if restaurant:
-            # return mark_safe(
-            #     '<img src="/static/{url}" width="120" height="120" />' \
-            #         .format(url=user.avatar.name)
-            # )
             return mark_safe(f"<img width='120' height='120' src='{restaurant.image.url}' />")
         return 'No image'
 
@@ -95,10 +81,6 @@ class FoodAdmin(admin.ModelAdmin):
 
     def img(self, food):
         if food:
-            # return mark_safe(
-            #     '<img src="/static/{url}" width="120" height="120" />' \
-            #         .format(url=food.image.name)
-            # )
             return mark_safe(f"<img width='120' height='120' src='{food.image.url}' />")
         return 'No image'
 
@@ -118,10 +100,6 @@ class RestaurantAdmin(admin.ModelAdmin):
 
     def img(self, restaurant):
         if restaurant:
-            # return mark_safe(
-            #     '<img src="/static/{url}" width="120" height="120" />' \
-            #         .format(url=restaurant.image.name)
-            # )
             return mark_safe(f"<img width='120' height='120' src='{restaurant.image.url}' />")
         return 'No image'
 
@@ -143,16 +121,25 @@ class CartDetailAdmin(admin.ModelAdmin):
 
 
 class PaymentAdmin(admin.ModelAdmin):
-    list_display = ['id', 'cart', 'status', 'note']
+    list_display = ['id', 'cart', 'status', 'method', 'note']
     list_filter = ['status']
 
 
 class RatingAdminForm(forms.ModelForm):
-    comment = forms.CharField(widget=CKEditorUploadingWidget)
+    comment = forms.CharField(widget=CKEditor5Field)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["comment"].required = False
 
     class Meta:
         model = Rating
         fields = '__all__'
+        widgets = {
+            "comment": CKEditor5Widget(
+                attrs={"class": "django_ckeditor_5"}
+            )
+        }
 
 
 class RatingAdmin(admin.ModelAdmin):
@@ -164,10 +151,6 @@ class RatingAdmin(admin.ModelAdmin):
 
     def img(self, rating):
         if rating:
-            # return mark_safe(
-            #     '<img src="/static/{url}" width="120" height="120" />' \
-            #         .format(url=rating.image.name)
-            # )
             return mark_safe(f"<img width='120' height='120' src='{rating.image.url}' />")
         return 'No image'
 

@@ -1,11 +1,10 @@
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 from .models import *
 
 
 class UserSerializer(ModelSerializer):
-    avatar = serializers.SerializerMethodField(source='avatar')
-
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         rep['avatar'] = instance.avatar.url
@@ -22,6 +21,15 @@ class UserSerializer(ModelSerializer):
                 return request.build_absolute_uri(rep)
             return rep
 
+    def create(self, validated_data):
+        data = validated_data.copy()
+
+        user = User(**data)
+        user.set_password(data["password"])
+        user.save()
+
+        return user
+
     class Meta:
         model = User
         fields = ['id', 'first_name', 'last_name', 'username', 'password', 'phone_number', 'role',
@@ -32,18 +40,6 @@ class UserSerializer(ModelSerializer):
             }
         }
 
-    # def to_representation(self, instance):
-    #     rep = super().to_representation(instance)
-    #     rep['avatar'] = instance.avatar.url
-    #
-    #     return rep
-
-    # def get_avatar(self, user):
-    #     if user.avatar:
-    #         request = self.context.get('request')
-    #         if request:
-    #             return request.build_absolute_uri('/static/%s' % user.avatar.name)
-
 
 class FoodCategorySerializer(ModelSerializer):
     class Meta:
@@ -51,39 +47,51 @@ class FoodCategorySerializer(ModelSerializer):
         fields = ['id', 'name']
 
 
-class RestaurantSerializer(ModelSerializer):
+class EmployeeSerializer(ModelSerializer):
+    res = serializers.PrimaryKeyRelatedField(queryset=Restaurant.objects.all())
+
     def to_representation(self, instance):
         rep = super().to_representation(instance)
-        rep['image'] = instance.image.url
+        rep['avatar'] = instance.avatar.url
 
         return rep
 
-    def get_image(self, restaurant):
-        if restaurant.image:
+    def get_avatar(self, employee):
+        if employee.avatar:
             request = self.context.get('request')
-            rep = super().to_representation(restaurant)
-            if request.image:
-                rep['image'] = restaurant.image.url
+            rep = super().to_representation(employee)
+            if request.avatar:
+                rep['avatar'] = employee.avatar.url
             if request:
                 return request.build_absolute_uri(rep)
             return rep
 
-    class Meta:
-        model = Restaurant
-        fields = ['id', 'name', 'phone_number', 'address', 'image', 'rating', 'category', 'owner',
-                  'created_date', 'updated_date', 'active']
+    def validate(self, data):
+        res = data.get('res')
+        username = data.get('username')
+        if Employee.objects.filter(res=res, username=username).exists():
+            raise serializers.ValidationError("An employee already exists in this restaurant!")
+        return data
 
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        employee = Employee(**validated_data)
+        if password:
+            employee.password = make_password(password)
 
-class EmployeeSerializer(ModelSerializer):
+        employee.save()
+
+        return employee
+
     class Meta:
         model = Employee
-        fields = ['id', 'user', 'restaurant']
-
-
-class EmployeeSerializer(ModelSerializer):
-    class Meta:
-        model = Employee
-        fields = '__all__'
+        fields = ['id', 'first_name', 'last_name', 'username', 'password', 'phone_number', 'role',
+                  'avatar', 'is_active', 'res']
+        extra_kwargs = {
+            'password': {
+                'write_only': True
+            }
+        }
 
 
 class FoodSerializer(ModelSerializer):
@@ -109,6 +117,36 @@ class FoodSerializer(ModelSerializer):
                   'created_date', 'active']
 
 
+class RestaurantSerializer(ModelSerializer):
+    foods = serializers.SerializerMethodField()
+
+    def get_foods(self, restaurant):
+        foods = restaurant.food_set.filter(active=True)
+        serializer = FoodSerializer(foods, many=True)
+        return serializer.data
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['image'] = instance.image.url
+
+        return rep
+
+    def get_image(self, restaurant):
+        if restaurant.image:
+            request = self.context.get('request')
+            rep = super().to_representation(restaurant)
+            if request.image:
+                rep['image'] = restaurant.image.url
+            if request:
+                return request.build_absolute_uri(rep)
+            return rep
+
+    class Meta:
+        model = Restaurant
+        fields = ['id', 'name', 'phone_number', 'address', 'image', 'rating', 'category', 'owner',
+                  'created_date', 'updated_date', 'active', 'foods']
+
+
 class RestaurantCategorySerializer(ModelSerializer):
 
     class Meta:
@@ -123,10 +161,10 @@ class NotificationSerializer(ModelSerializer):
 
 
 class CartSerializer(ModelSerializer):
-    cart_details = serializers.SerializerMethodField('get_cart_details')
+    cart_details = serializers.SerializerMethodField()
 
-    def get_cart_details(self, obj):
-        cart_details = Cart.objects.cartdetail_set(cart=obj)
+    def get_cart_details(self, cart):
+        cart_details = cart.cartdetail_set.filter(active=True)
         serializer = CartDetailSerializer(cart_details, many=True)
         return serializer.data
 
@@ -137,14 +175,15 @@ class CartSerializer(ModelSerializer):
 
 class CartDetailSerializer(ModelSerializer):
     class Meta:
-        model = Cart
+        model = CartDetail
         fields = ['id', 'cart', 'food', 'quantity', 'amount', 'created_date', 'updated_date']
+        read_only_fields = ['amount']
 
 
 class PaymentSerializer(ModelSerializer):
     class Meta:
         model = Payment
-        fields = ['id', 'status', 'note', 'cart', 'created_date', 'active']
+        fields = ['id', 'status', 'method', 'note', 'cart', 'created_date', 'active']
 
 
 class RatingSerializer(ModelSerializer):
@@ -166,4 +205,4 @@ class RatingSerializer(ModelSerializer):
 
     class Meta:
         model = Rating
-        fields = ['id', 'star', 'comment', 'image', 'payment', 'active']
+        fields = ['id', 'star', 'comment', 'image', 'payment', 'created_date', 'active']

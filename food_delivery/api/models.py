@@ -1,4 +1,3 @@
-from ckeditor.fields import RichTextField
 from cloudinary.models import CloudinaryField
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -24,7 +23,7 @@ class Role(BaseModel):
 
 class User(AbstractUser):
     phone_number = models.CharField(max_length=13, null=False)
-    avatar = CloudinaryField(null=False)
+    avatar = CloudinaryField(null=True, blank=True)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
@@ -123,6 +122,7 @@ class PaymentMethod(models.IntegerChoices):
 class Payment(BaseModel):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     status = models.IntegerField(choices=PaymentStatus.choices)
+    method = models.IntegerField(choices=PaymentMethod.choices, default=PaymentMethod.CASH)
     note = models.TextField(null=True)
 
 
