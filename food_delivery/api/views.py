@@ -1,6 +1,9 @@
+import os
 import re
 from datetime import datetime, timedelta
 
+import requests
+from django.db.models import Avg
 from django.utils import timezone
 from rest_framework import viewsets, permissions, generics, status
 from rest_framework.decorators import action
@@ -12,9 +15,10 @@ from .paginators import *
 
 
 class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
-    queryset = User.objects.all()
+    queryset = User.objects.filter(is_active=True)
     serializer_class = UserSerializer
     pagination_class = UserPaginator
+
     # permission_classes = [permissions.IsAuthenticated]
 
     @action(methods=['post'], url_path='register', detail=False)
@@ -101,8 +105,27 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
             if user.role_id == 0 or user.role_id == 1 or user.role_id == 2:
                 serializer = UserSerializer(user)
             elif user.role_id == 3:
-                employee = Employee.objects.get(user=user)
+                employee = Employee.objects.get(user_ptr=user)
                 serializer = EmployeeSerializer(employee)
+
+            token_url = 'http://127.0.0.1:8000/o/token/'
+            token_data = {
+                'grant_type': 'password',
+                'username': username,
+                'password': password,
+                'client_id': os.getenv('CLIENT_ID_OAUTH'),
+                'client_secret': os.getenv('CLIENT_SECRET_OAUTH')
+            }
+
+            token_response = requests.post(token_url, data=token_data)
+            if token_response.status_code == 200:
+                return Response({
+                    'user': serializer.data,
+                    'access_token': token_response.json().get('access_token'),
+                    'refresh_token': token_response.json().get('refresh_token'),
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response(token_response.json(), status=status.HTTP_400_BAD_REQUEST)
 
             return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -182,20 +205,6 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(methods=['get'], url_path='current-user/carts/(?P<id>\d+)', detail=False)
-    def get_cart_by_id(self, request, id=None):
-        user = request.user
-        try:
-            cart = Cart.objects.get(pk=id, user=user)
-        except Cart.DoesNotExist:
-            return Response(
-                {'error': 'Cart not found!'},
-                status=status.HTTP_404_NOT_FOUND)
-
-        serializer = CartSerializer(cart)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
     @action(methods=['post'], url_path='current-user/carts', detail=False)
     def add_cart(self, request):
         user = request.user
@@ -235,28 +244,67 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['get'], url_path='current-user/notifications', detail=False)
-    def get_all_payments(self, request):
+    def get_all_notifications(self, request):
         user = request.user
         notifications = user.notification_set.filter(active=True).all()
         serializer = NotificationSerializer(notifications, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(methods=['post'], url_path='current-user/restaurants', detail=False)
+    def add_restaurant(self, request):
+        user = request.user
+        required_fields = ['name', 'phone_number', 'address', 'image', 'category']
+        missing_fields = [field for field in required_fields if not request.data.get(field)]
+        if missing_fields:
+            return Response({'error': f"{', '.join(missing_fields)} required"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-class RestaurantCategoryViewSet(viewsets.ViewSet, generics.ListAPIView, generics.RetrieveAPIView):
-    queryset = RestaurantCategory.objects.all()
+        name = request.data.get('name')
+        phone_number = request.data.get('phone_number')
+        address = request.data.get('address')
+        image = request.data.get('image')
+        category = request.data.get('category')
+
+        restaurant = Restaurant.objects.create(
+            name=name,
+            phone_number=phone_number,
+            address=address,
+            image=image,
+            rating=0,
+            category=category,
+            owner=user
+        )
+
+        serializer = RestaurantSerializer(restaurant)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class RestaurantCategoryViewSet(viewsets.ViewSet,
+                                generics.ListAPIView,
+                                generics.RetrieveAPIView,
+                                generics.CreateAPIView):
+    queryset = RestaurantCategory.objects.filter(active=True)
     serializer_class = RestaurantCategorySerializer
     # permission_classes = [permissions.IsAuthenticated]
 
 
-class FoodCategoryViewSet(viewsets.ViewSet, generics.ListAPIView, generics.RetrieveAPIView):
-    queryset = FoodCategory.objects.all()
+class FoodCategoryViewSet(viewsets.ViewSet,
+                          generics.ListAPIView,
+                          generics.RetrieveAPIView,
+                          generics.CreateAPIView):
+    queryset = FoodCategory.objects.filter(active=True)
     serializer_class = FoodCategorySerializer
     # permission_classes = [permissions.IsAuthenticated]
 
 
-class RestaurantViewSet(viewsets.ViewSet, generics.ListAPIView, generics.RetrieveAPIView, generics.UpdateAPIView):
+class RestaurantViewSet(viewsets.ViewSet,
+                        generics.ListAPIView,
+                        generics.RetrieveAPIView,
+                        generics.UpdateAPIView):
     queryset = Restaurant.objects.filter(active=True)
     serializer_class = RestaurantSerializer
+
     # permission_classes = [permissions.IsAuthenticated]
 
     @action(methods=['get'], url_path='foods', detail=True)
@@ -290,7 +338,7 @@ class RestaurantViewSet(viewsets.ViewSet, generics.ListAPIView, generics.Retriev
 
         restaurant = self.get_object()
 
-        isFoodExists = Food.objects.fitler(name=name, restaurant=restaurant).exists()
+        isFoodExists = Food.objects.filter(name=name, restaurant=restaurant).exists()
         if isFoodExists:
             return Response(
                 {'error': 'Food already exists in this restaurant'},
@@ -323,58 +371,35 @@ class RestaurantViewSet(viewsets.ViewSet, generics.ListAPIView, generics.Retriev
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    @action(methods=['patch'], url_path='food/(?P<id>\d+)', detail=True)
-    def update_food(self, request, pk, id=None):
+    @action(methods=['get'], url_path='ratings', detail=True)
+    def get_all_ratings(self, request, pk):
         restaurant = self.get_object()
-        try:
-            food = Food.objects.get(id=id, restaurant=restaurant)
-        except Food.DoesNotExists:
-            return Response(
-                {'error': 'Food not found!'},
-                status=status.HTTP_404_NOT_FOUND)
-
-        serializer = FoodSerializer(food, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(methods=['patch'], url_path='food/(?P<id>\d+)', detail=True)
-    def delete_food(self, request, pk=None, id=None):
-        restaurant = self.get_object()
-        try:
-            food = Food.objects.get(id=id, restaurant=restaurant)
-        except Food.DoesNotExist:
-            return Response(
-                {'error': 'Food not found!'},
-                status=status.HTTP_404_NOT_FOUND)
-
-        # Set the food item as inactive instead of deleting it
-        food.active = False
-        food.save()
-
-        return Response({'status': 'Food item deactivated'}, status=status.HTTP_200_OK)
+        ratings = Rating.objects.filter(payment__cart__restaurant=restaurant, active=True)
+        serializer = RatingSerializer(ratings, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class EmployeeViewSet(viewsets.ViewSet, generics.ListAPIView, generics.RetrieveAPIView, generics.UpdateAPIView):
-    queryset = Employee.objects.all()
-    serializer_class = EmployeeSerializer
-    # permission_classes = [permissions.IsAuthenticated]
-
-
-class FoodViewSet(viewsets.ViewSet, generics.ListAPIView, generics.RetrieveAPIView):
-    queryset = Food.objects.all()
+class FoodViewSet(viewsets.ViewSet,
+                  generics.ListAPIView,
+                  generics.RetrieveAPIView):
+    queryset = Food.objects.filter(active=True)
     serializer_class = FoodSerializer
     # permission_classes = [permissions.IsAuthenticated]
+
+    @action(methods=['get'], url_path='ratings', detail=True)
+    def get_all_ratings(self, request, pk):
+        food = self.get_object()
+        ratings = Rating.objects.filter(payment__cart__cartdetail__food=food, active=True)
+        serializer = RatingSerializer(ratings, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class FoodSearchView(generics.ListAPIView):
-    queryset = Food.objects.all()
+    queryset = Food.objects.filter(active=True)
     serializer_class = FoodSerializer
 
     def get_queryset(self):
-        queryset = Food.objects.all()
+        queryset = Food.objects.filter(active=True)
         keyword = self.request.query_params.get('kw', None)
         if keyword:
             queryset = queryset.filter(name__icontains=keyword)
@@ -382,15 +407,153 @@ class FoodSearchView(generics.ListAPIView):
 
 
 class RestaurantSearchView(generics.ListAPIView):
-    queryset = Restaurant.objects.all()
+    queryset = Restaurant.objects.filter(active=True)
     serializer_class = RestaurantSerializer
 
     def get_queryset(self):
-        queryset = Restaurant.objects.all()
+        queryset = Restaurant.objects.filter(active=True)
         keyword = self.request.query_params.get('kw', None)
         if keyword:
             queryset = queryset.filter(name__icontains=keyword)
         return queryset
+
+
+class EmployeeViewSet(viewsets.ViewSet,
+                      generics.ListAPIView,
+                      generics.RetrieveAPIView,
+                      generics.UpdateAPIView,
+                      generics.CreateAPIView):
+    queryset = Employee.objects.filter(is_active=True)
+    serializer_class = EmployeeSerializer
+
+    def create(self, request, *args, **kwargs):
+        required_fields = ['first_name', 'last_name', 'username', 'password', 'phone_number', 'avatar', 'restaurant']
+        missing_fields = [field for field in required_fields if not request.data.get(field)]
+        if missing_fields:
+            return Response({'error': f"{', '.join(missing_fields)} required"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+        username = request.data.get('username')
+        password = request.data.get('password')
+        phone_number = request.data.get('phone_number')
+        avatar = request.data.get('avatar')
+        role = Role.objects.get(pk=3)
+        res_id = request.data.get('restaurant')
+        try:
+            res = Restaurant.objects.get(pk=res_id)
+        except:
+            return Response(
+                {'error': 'Restaurant not found!'},
+                status=status.HTTP_400_BAD_REQUEST)
+
+        phone_number_pattern = r'^(\\+84|84|0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5|8|9]|9[0-4|6-9])[0-9]{7}$'
+        no_space_pattern = r'^\S+$'
+        password_pattern = r'[A-Za-z0-9@#$%^&+=]{8,}'
+
+        isUsername = User.objects.filter(username=username).exists()
+        isPhoneNumber = re.match(phone_number_pattern, phone_number)
+        isFirstName = re.match(no_space_pattern, first_name)
+        isLastName = re.match(no_space_pattern, last_name)
+        isPassword = re.fullmatch(password_pattern, password)
+
+        if not isFirstName and not isLastName:
+            return Response(
+                {'error': 'first name and last name can not contain whitespaces!'},
+                status=status.HTTP_400_BAD_REQUEST)
+        if isUsername:
+            return Response(
+                {'error': 'username already exists!'},
+                status=status.HTTP_400_BAD_REQUEST)
+        if len(username) < 3:
+            return Response(
+                {'error': 'username must contains at least 3 characters!'},
+                status=status.HTTP_400_BAD_REQUEST)
+        if not isPhoneNumber:
+            return Response(
+                {'error': 'Invalid phone number!'},
+                status=status.HTTP_400_BAD_REQUEST)
+        if not isPassword:
+            return Response(
+                {'error': 'Password must be at least 8 characters long and contain number, uppercase, '
+                          'lowercase, special characters!'},
+                status=status.HTTP_400_BAD_REQUEST)
+
+        employee = Employee.objects.create(
+            username=username,
+            password=make_password(password),
+            phone_number=phone_number,
+            first_name=first_name,
+            last_name=last_name,
+            role=role,
+            avatar=avatar,
+            res=res,
+        )
+        serializer = EmployeeSerializer(employee)
+
+        token_url = 'http://127.0.0.1:8000/o/token/'
+        token_data = {
+            'grant_type': 'password',
+            'username': username,
+            'password': password,
+            'client_id': os.getenv('CLIENT_ID_OAUTH'),
+            'client_secret': os.getenv('CLIENT_SECRET_OAUTH')
+        }
+
+        token_response = requests.post(token_url, data=token_data)
+        if token_response.status_code == 200:
+            return Response({
+                'employee': serializer.data,
+                'access_token': token_response.json().get('access_token'),
+                'refresh_token': token_response.json().get('refresh_token'),
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response(token_response.json(), status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+
+        if 'is_active' in request.data and not request.data['is_active']:
+            request.data['is_active'] = False
+        else:
+            return Response(
+                {'error': 'Invalid request. Only deactivation is allowed.'},
+                status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+
+class TokenViewSet(viewsets.ViewSet,
+                   generics.CreateAPIView):
+    def create(self, request, *args, **kwargs):
+        refresh_token = request.data.get('refresh_token')
+        if not refresh_token:
+            return Response({'error': 'refresh_token required.'}, status=status.HTTP_400_BAD_REQUEST)
+        token_url = 'http://127.0.0.1:8000/o/token/'
+        token_data = {
+            'grant_type': 'refresh_token',
+            'refresh_token': refresh_token,
+            'client_id': os.getenv('CLIENT_ID_OAUTH'),
+            'client_secret': os.getenv('CLIENT_SECRET_OAUTH')
+        }
+        token_response = requests.post(token_url, data=token_data)
+        if token_response.status_code == 200:
+            return Response({
+                'access_token': token_response.json().get('access_token'),
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({'refresh_token has expired!'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class NotificationViewSet(viewsets.ViewSet,
@@ -398,7 +561,7 @@ class NotificationViewSet(viewsets.ViewSet,
                           generics.RetrieveAPIView,
                           generics.UpdateAPIView,
                           generics.CreateAPIView):
-    queryset = Notification.objects.all()
+    queryset = Notification.objects.filter(active=True)
     serializer_class = NotificationSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
@@ -407,8 +570,9 @@ class CartViewSet(viewsets.ViewSet,
                   generics.ListAPIView,
                   generics.RetrieveAPIView,
                   generics.UpdateAPIView):
-    queryset = Cart.objects.all()
+    queryset = Cart.objects.filter(active=True)
     serializer_class = CartSerializer
+
     # permission_classes = [permissions.IsAuthenticated]
 
     @action(methods=['get'], url_path='cart-details', detail=True)
@@ -422,35 +586,44 @@ class CartViewSet(viewsets.ViewSet,
     @action(methods=['post'], url_path='cart-details', detail=True)
     def add_cart_detail(self, request, pk):
         cart = self.get_object()
-        required_fields = ['cart', 'food', 'quantity']
+        required_fields = ['food', 'quantity']
         missing_fields = [field for field in required_fields if not request.data.get(field)]
         if missing_fields:
             return Response({'error': f"{', '.join(missing_fields)} required"},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            food = request.data.get('food')
-        except Food.DoesNotExist:
-            return Response(
-                {'error': 'Food not found!'},
-                status=status.HTTP_404_NOT_FOUND)
-
+        food_id = request.data.get('food')
         quantity = request.data.get('quantity')
+
+        # Lấy 'Món Ăn'
+        try:
+            food = Food.objects.get(pk=food_id)
+        except Food.DoesNotExist:
+            return Response({'error': 'Food not found!'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Xử lý 'Số Lượng'
         try:
             quantity = int(quantity)
-        except (ValueError, TypeError):
-            return Response(
-                {'error': 'Quantity must be a valid number'},
-                status=status.HTTP_400_BAD_REQUEST)
+            if quantity <= 0:
+                return Response({'error': 'Quantity must be greater than zero!'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({'error': 'Quantity must be a valid number!'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Kiểm tra 'Món Ăn' đã có trong giỏ hàng chưa
+        isFoodInCart = CartDetail.objects.filter(cart=cart, food=food).exists()
+        if isFoodInCart:
+            return Response({'error': 'This food already in cart!'}, status=status.HTTP_400_BAD_REQUEST)
+
+        amount = (food.price * quantity) - food.discount
         cart_details = CartDetail.objects.create(
             cart=cart,
             food=food,
             quantity=quantity,
+            amount=amount,
         )
 
         serializer = CartDetailSerializer(cart_details)
-
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['patch'], url_path='update', detail=True)
@@ -477,103 +650,148 @@ class CartViewSet(viewsets.ViewSet,
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # @action(methods=['patch'], url_path='cart-details/(?P<id>\d+)', detail=True)
-    # def update_cart_detail(self, request, pk):
-    #     cart = self.get_object()
-    #
-    #     food = request.data.get('food')
-    #     quantity = request.data.get('quantity')
-    #
-    #     update_data = {}
-    #
-    #     if food is not None:
-    #         update_data['food'] = food
-    #     if quantity is not None:
-    #         update_data['quantity'] = quantity
-    #
-    #     serializer = CartDetailSerializer(cart, data=update_data, partial=True)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-    #     else:
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(methods=['patch'], url_path='cart-details/(?P<id>\d+)', detail=True)
-    def delete_cart_detail(self, request, pk=None, id=None):
-        cart = self.get_object()
-        try:
-            cart_details = CartDetail.objects.get(id=id, cart=cart)
-        except CartDetail.DoesNotExist:
-            return Response(
-                {'error': 'Cart detail not found!'},
-                status=status.HTTP_404_NOT_FOUND)
-
-        cart.active = False
-        cart.save()
-
-        return Response({'status': 'Cart detail item deactivated'}, status=status.HTTP_200_OK)
-
     @action(methods=['post'], url_path='payments', detail=True)
-    def add_payment(self, request):
+    def add_payment(self, request, pk):
         cart = self.get_object()
-        required_fields = ['cart', 'status', 'note']
+        required_fields = ['cart', 'status', 'method']
         missing_fields = [field for field in required_fields if not request.data.get(field)]
         if missing_fields:
             return Response({'error': f"{', '.join(missing_fields)} required"},
                             status=status.HTTP_400_BAD_REQUEST)
 
         status_payment = request.data.get('status')
-        note = request.data.get('note')
+        method = request.data.get('method')
+        note = request.data.get('note', '')
+
+        try:
+            status_payment = int(status_payment)
+            list_status = [s for s, _ in PaymentStatus.choices]
+            isValidStatus = status_payment in list_status
+            if not isValidStatus:
+                return Response({'error': 'status not found!'}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({'error': 'status must be a valid number!'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            method = int(method)
+            list_methods = [method for method, _ in PaymentMethod.choices]
+            isValidMethod = method in list_methods
+            if not isValidMethod:
+                return Response({'error': 'method not found!'}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({'error': 'method must be a valid number!'}, status=status.HTTP_400_BAD_REQUEST)
+
+        isCartPaid = Payment.objects.filter(cart=cart).exists()
+        if isCartPaid:
+            return Response({'error': 'This cart has been paid!'}, status=status.HTTP_400_BAD_REQUEST)
+
         payment = Payment.objects.create(
             cart=cart,
             status=status_payment,
+            method=method,
             note=note,
         )
 
-    @action(methods=['post'], url_path='ratings', detail=True)
-    def add_rating(self, request):
-        cart = self.get_object()
-        required_fields = ['star', 'comment', 'iamge', 'cart']
-        missing_fields = [field for field in required_fields if not request.data.get(field)]
-        if missing_fields:
-            return Response({'error': f"{', '.join(missing_fields)} required"},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        star = request.data.get('star')
-        comment = request.data.get('comment')
-        image = request.data.get('image')
-
-        rating = Rating.objects.create(
-            star=star,
-            comment=comment,
-            image=image,
-            cart=cart,
-        )
-
-        serializer = RatingSerializer(rating)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        serializer = PaymentSerializer(payment)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class CartDetailViewSet(viewsets.ViewSet,
-                        generics.ListAPIView,
                         generics.RetrieveAPIView,
-                        generics.UpdateAPIView):
+                        generics.UpdateAPIView,
+                        generics.DestroyAPIView):
     queryset = CartDetail.objects.filter(active=True)
     serializer_class = CartDetailSerializer
+
+    def partial_update(self, request, *args, **kwargs):
+        cart_detail = self.get_object()
+
+        quantity = request.data.get('quantity')
+
+        if quantity is not None:
+            try:
+                quantity = int(quantity)
+                if quantity <= 0:
+                    return Response({'error': 'Quantity must be greater than 0.'}, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                return Response({'error': 'Quantity must be a valid number.'}, status=status.HTTP_400_BAD_REQUEST)
+
+            food = cart_detail.food
+            amount = (food.price * quantity) - food.discount
+
+            cart_detail.quantity = quantity
+            cart_detail.amount = amount
+            cart_detail.save()
+
+            serializer = self.get_serializer(cart_detail)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({'error': 'Quantity is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PaymentViewSet(viewsets.ViewSet,
                      generics.ListAPIView,
                      generics.RetrieveAPIView,
                      generics.UpdateAPIView):
-    queryset = Payment.objects.all()
+    queryset = Payment.objects.filter(active=True)
     serializer_class = PaymentSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
+    @action(methods=['post'], url_path='ratings', detail=True)
+    def add_rating(self, request, pk):
+        payment = self.get_object()
 
-class RatingViewSet(viewsets.ViewSet, generics.ListAPIView, generics.RetrieveAPIView, generics.UpdateAPIView):
-    queryset = Rating.objects.all()
+        # Kiểm tra phương thức thanh toán của đơn hàng hoàn thành chưa
+        if payment.status != 3:
+            return Response({'error': 'This payment has not been completed!'}, status=status.HTTP_400_BAD_REQUEST)
+
+        required_fields = ['star', 'comment', 'image']
+        missing_fields = [field for field in required_fields if not request.data.get(field)]
+        if missing_fields:
+            return Response({'error': f"{', '.join(missing_fields)} required"},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        star = request.data.get('star')
+        comment = request.data.get('comment', '')
+        image = request.data.get('image')
+        try:
+            star = int(star)
+            if star <= 0 or star > 5:
+                return Response({'error': 'star must between 1 and 5'}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response({'error': 'star must be a valid number!'}, status=status.HTTP_400_BAD_REQUEST)
+
+        rating = Rating.objects.create(
+            star=star,
+            comment=comment,
+            image=image,
+            payment=payment,
+        )
+
+        # Đánh giá sao Restaurant và Food trong Cart
+        cart = payment.cart
+        restaurant = cart.restaurant
+        restaurant_avg_rating = Rating.objects.filter(payment__cart__restaurant=restaurant).aggregate(Avg('star'))[
+            'star__avg']
+        restaurant.rating = restaurant_avg_rating
+        restaurant.save()
+
+        cart_details = cart.cartdetail_set.all()
+        for cart_detail in cart_details:
+            food = cart_detail.food
+            food_avg_rating = Rating.objects.filter(payment__cart__cartdetail__food=food).aggregate(Avg('star'))[
+                'star__avg']
+            food.rating = food_avg_rating
+            food.save()
+
+        serializer = RatingSerializer(rating)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class RatingViewSet(viewsets.ViewSet,
+                    generics.ListAPIView,
+                    generics.RetrieveAPIView):
+    queryset = Rating.objects.filter(active=True)
     serializer_class = RatingSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
@@ -592,4 +810,3 @@ class StatsViewSet(viewsets.ViewSet):
     def count_restaurants(self, request, *args, **kwargs):
         count_restaurant = Restaurant.objects.count()
         return Response({"total_restaurant": count_restaurant}, status=status.HTTP_200_OK)
-

@@ -29,4 +29,6 @@ urlpatterns = [
 
     path('search=<str:food_name>', FoodSearchView.as_view()),
     path('search-restaurant=<str:restaurant_name>', RestaurantSearchView.as_view()),
+
+    path('token/', TokenViewSet.as_view({'post': 'create'}))
 ]
