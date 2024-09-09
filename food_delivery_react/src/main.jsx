@@ -10,6 +10,8 @@ import {
   Link,
 } from "react-router-dom";
 import { ThemeProvider } from "@material-tailwind/react";
+import { UserProvider } from './contexts/UserContext.jsx';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 
 const router = createBrowserRouter([
@@ -25,7 +27,11 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider>
-      <RouterProvider router={router} />
+      <UserProvider>
+          <GoogleOAuthProvider clientId="1026719700159-cj1sq0dvesgoj6qu2944rr6qft24gbi2.apps.googleusercontent.com">
+            <RouterProvider router={router} />  
+          </GoogleOAuthProvider>
+      </UserProvider>
     </ThemeProvider>
   </StrictMode>,
 )
