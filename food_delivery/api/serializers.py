@@ -117,8 +117,21 @@ class FoodSerializer(ModelSerializer):
                   'created_date', 'active']
 
 
+class RestaurantCategorySerializer(ModelSerializer):
+
+    class Meta:
+        model = RestaurantCategory
+        fields = ['id', 'name']
+
+
 class RestaurantSerializer(ModelSerializer):
-    foods = serializers.SerializerMethodField()
+    foods = serializers.SerializerMethodField('get_foods')
+    category = serializers.SerializerMethodField('get_category_name')
+
+    def get_category_name(self, obj):
+        category = obj.category.name
+
+        return category
 
     def get_foods(self, restaurant):
         foods = restaurant.food_set.filter(active=True)
@@ -147,11 +160,7 @@ class RestaurantSerializer(ModelSerializer):
                   'created_date', 'updated_date', 'active', 'foods']
 
 
-class RestaurantCategorySerializer(ModelSerializer):
 
-    class Meta:
-        model = RestaurantCategory
-        fields = ['id', 'name']
 
 
 class NotificationSerializer(ModelSerializer):
