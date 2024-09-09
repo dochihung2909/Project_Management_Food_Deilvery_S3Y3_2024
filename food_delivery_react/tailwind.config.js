@@ -8,6 +8,10 @@ export default withMT({
   ],
   theme: {
     extend: {},
+    colors: {
+      primary: '#F88601',
+      secondary: '#f7f7f7'
+    }
   },
   plugins: [],
 })
