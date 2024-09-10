@@ -5,11 +5,11 @@ from .models import *
 
 
 class UserSerializer(ModelSerializer):
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        rep['avatar'] = instance.avatar.url
-
-        return rep
+    # def to_representation(self, instance):
+    #     rep = super().to_representation(instance)
+    #     rep['avatar'] = instance.avatar.url
+    #
+    #     return rep
 
     def get_avatar(self, user):
         if user.avatar:
@@ -170,16 +170,23 @@ class NotificationSerializer(ModelSerializer):
 
 
 class CartSerializer(ModelSerializer):
-    cart_details = serializers.SerializerMethodField()
+    cart_details = serializers.SerializerMethodField('get_cart_details')
+    total_amount = serializers.SerializerMethodField('get_total_amount')
 
     def get_cart_details(self, cart):
         cart_details = cart.cartdetail_set.filter(active=True)
         serializer = CartDetailSerializer(cart_details, many=True)
         return serializer.data
 
+    def get_total_amount(self, cart):
+        cart_details = cart.cartdetail_set.filter(active=True)
+        total = sum(detail.amount for detail in cart_details)
+
+        return total
+
     class Meta:
         model = Cart
-        fields = ['id', 'note', 'status', 'user', 'restaurant', 'created_date', 'active', 'cart_details']
+        fields = ['id', 'note', 'status', 'user', 'restaurant', 'created_date', 'active', 'cart_details', 'total_amount']
 
 
 class CartDetailSerializer(ModelSerializer):

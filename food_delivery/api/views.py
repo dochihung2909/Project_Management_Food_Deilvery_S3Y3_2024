@@ -1,6 +1,7 @@
 import os
 import re
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
 import requests
 from django.db.models import Avg
@@ -12,6 +13,9 @@ from rest_framework.response import Response
 from .models import *
 from .serializers import *
 from .paginators import *
+import json
+
+load_dotenv()
 
 
 class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
@@ -23,7 +27,7 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
 
     @action(methods=['post'], url_path='register', detail=False)
     def register(self, request):
-        required_fields = ['first_name', 'last_name', 'username', 'password', 'phone_number', 'avatar']
+        required_fields = ['first_name', 'last_name', 'username', 'password', 'phone_number']
         missing_fields = [field for field in required_fields if not request.data.get(field)]
         if missing_fields:
             return Response({'error': f"{', '.join(missing_fields)} required"},
@@ -34,7 +38,7 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
         username = request.data.get('username')
         password = request.data.get('password')
         phone_number = request.data.get('phone_number')
-        avatar = request.data.get('avatar')
+        avatar = '123'
         role = Role.objects.get(pk=1)
 
         phone_number_pattern = r'^(\\+84|84|0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5|8|9]|9[0-4|6-9])[0-9]{7}$'
@@ -92,42 +96,45 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
 
         username = request.data.get('username')
         password = request.data.get('password')
-        user = User.objects.get(username=username)
-        if user:
-            if not user.check_password(password):
-                return Response(
-                    {'error': 'Wrong password!'},
-                    status=status.HTTP_400_BAD_REQUEST)
-            if not user.is_active:
-                return Response(
-                    {'error': 'The account has been locked!'},
-                    status=status.HTTP_400_BAD_REQUEST)
-            if user.role_id == 0 or user.role_id == 1 or user.role_id == 2:
-                serializer = UserSerializer(user)
-            elif user.role_id == 3:
-                employee = Employee.objects.get(user_ptr=user)
-                serializer = EmployeeSerializer(employee)
+        try:
+            user = User.objects.get(username=username)
+            if user:
+                if not user.check_password(password):
+                    return Response(
+                        {'error': 'Wrong username or password!'},
+                        status=status.HTTP_400_BAD_REQUEST)
+                if not user.is_active:
+                    return Response(
+                        {'error': 'The account has been locked!'},
+                        status=status.HTTP_400_BAD_REQUEST)
+                if user.role_id == 0 or user.role_id == 1 or user.role_id == 2:
+                    serializer = UserSerializer(user)
+                elif user.role_id == 3:
+                    employee = Employee.objects.get(user_ptr=user)
+                    serializer = EmployeeSerializer(employee)
 
-            token_url = 'http://127.0.0.1:8000/o/token/'
-            token_data = {
-                'grant_type': 'password',
-                'username': username,
-                'password': password,
-                'client_id': os.getenv('CLIENT_ID_OAUTH'),
-                'client_secret': os.getenv('CLIENT_SECRET_OAUTH')
-            }
+                token_url = 'http://127.0.0.1:8000/o/token/'
+                token_data = {
+                    'grant_type': 'password',
+                    'username': username,
+                    'password': password,
+                    'client_id': os.getenv('CLIENT_ID_OAUTH'),
+                    'client_secret': os.getenv('CLIENT_SECRET_OAUTH')
+                }
 
-            token_response = requests.post(token_url, data=token_data)
-            if token_response.status_code == 200:
-                return Response({
-                    'user': serializer.data,
-                    'access_token': token_response.json().get('access_token'),
-                    'refresh_token': token_response.json().get('refresh_token'),
-                }, status=status.HTTP_200_OK)
-            else:
-                return Response(token_response.json(), status=status.HTTP_400_BAD_REQUEST)
+                print(token_data)
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
+                token_response = requests.post(token_url, data=token_data)
+                if token_response.status_code == 200:
+                    return Response({
+                        'user': serializer.data,
+                        'access_token': token_response.json().get('access_token'),
+                        'refresh_token': token_response.json().get('refresh_token'),
+                    }, status=status.HTTP_200_OK)
+                else:
+                    return Response(token_response.json(), status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return Response({'error': 'Wrong username or password!'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['get'], url_path='current-user', detail=False)
     def get_current_user(self, request):
@@ -384,6 +391,7 @@ class FoodViewSet(viewsets.ViewSet,
                   generics.RetrieveAPIView):
     queryset = Food.objects.filter(active=True)
     serializer_class = FoodSerializer
+
     # permission_classes = [permissions.IsAuthenticated]
 
     @action(methods=['get'], url_path='ratings', detail=True)
@@ -569,11 +577,37 @@ class NotificationViewSet(viewsets.ViewSet,
 class CartViewSet(viewsets.ViewSet,
                   generics.ListAPIView,
                   generics.RetrieveAPIView,
-                  generics.UpdateAPIView):
+                  generics.UpdateAPIView,
+                  generics.CreateAPIView):
     queryset = Cart.objects.filter(active=True)
     serializer_class = CartSerializer
 
     # permission_classes = [permissions.IsAuthenticated]
+
+    def create(self, request):
+        if request.method == 'POST':
+            required_fields = ['user', 'restaurant']
+            missing_fields = [field for field in required_fields if not request.data.get(field)]
+            if missing_fields:
+                return Response({'error': f"{', '.join(missing_fields)} required"},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            # data = json.loads(request.body.decode('utf-8'))
+
+            restaurant = request.data.get('restaurant')
+            user = request.data.get('user')
+            print(restaurant, user)
+
+            cart, created = Cart.objects.get_or_create(
+                user=user,
+                restaurant=restaurant
+            )
+
+            if created:
+                return Response(CartSerializer(created).data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
+        return Response({'error': "Something wrong!"}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['get'], url_path='cart-details', detail=True)
     def get_cart_details(self, request, pk):
@@ -611,9 +645,11 @@ class CartViewSet(viewsets.ViewSet,
             return Response({'error': 'Quantity must be a valid number!'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Kiểm tra 'Món Ăn' đã có trong giỏ hàng chưa
-        isFoodInCart = CartDetail.objects.filter(cart=cart, food=food).exists()
-        if isFoodInCart:
-            return Response({'error': 'This food already in cart!'}, status=status.HTTP_400_BAD_REQUEST)
+        cart_detail = CartDetail.objects.get(cart=cart, food=food)
+        if cart_detail:
+            cart_detail.quantity += quantity
+            cart_detail.save()
+            return Response(CartSerializer(cart).data, status=status.HTTP_201_CREATED)
 
         amount = (food.price * quantity) - food.discount
         cart_details = CartDetail.objects.create(
@@ -735,6 +771,7 @@ class PaymentViewSet(viewsets.ViewSet,
                      generics.UpdateAPIView):
     queryset = Payment.objects.filter(active=True)
     serializer_class = PaymentSerializer
+
     # permission_classes = [permissions.IsAuthenticated]
 
     @action(methods=['post'], url_path='ratings', detail=True)
