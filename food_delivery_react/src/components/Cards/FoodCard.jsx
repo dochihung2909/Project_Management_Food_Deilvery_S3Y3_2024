@@ -13,10 +13,15 @@ import {
 import { formatCurrencyVND } from '../../utils/currency';
 import Loading from '../Loading/Loading';
 import { useCart } from '../../contexts/CartContext';
+import { useUser } from '../../contexts/UserContext';
 
 
 export default function FoodCard({food}) { 
     const navigate = useNavigate();
+
+    const BASE_URL = import.meta.env.VITE_BASE_URL
+
+    const { user } = useUser()
 
     const [isLoading, setIsLoading] = useState(false)
 
@@ -31,9 +36,43 @@ export default function FoodCard({food}) {
 
     const handleAddFoodToCart = async (e) => {
       e.stopPropagation()  
-      add({...food, quantity: 1})
-      // console.log(cart)
+      add({...food, quantity: 1}) 
+
+      if (user) {
+        await fetch(BASE_URL + 'carts/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            user: user.id,
+            restaurant: food.restaurant
+          })
+        })
+        .then(response =>response.json())
+        .then(data => {
+          addFoodToCart(data.id, food.id)
+          console.log(data)
+        }) 
+      }  
     } 
+
+    const addFoodToCart = async (cartId, foodId) => {
+      await fetch(BASE_URL + `carts/${cartId}/cart-details/`, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          food: foodId,
+          quantity: 1
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data)
+      })
+    }
 
     return (
       <>      

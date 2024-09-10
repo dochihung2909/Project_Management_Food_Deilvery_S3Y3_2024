@@ -1,16 +1,25 @@
 import { Button } from '@material-tailwind/react'
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import Cookies from 'js-cookie'
+import { useUser } from '../../contexts/UserContext'
 
 export default function LoginPage() {
 
     let regexPhoneNumber = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/ 
 
     const [isError, setIsError] = useState(false)
+
+    const navigate = useNavigate()
+
+    const { login } = useUser()
+
+    const BASE_URL = import.meta.env.VITE_BASE_URL
  
 
-    const handleSubmitRegisterForm = (e) => {
+    const handleSubmitRegisterForm = async (e) => {
         e.preventDefault()  
+        setIsError(false)
  
         let phone_number = e.target.phone_number.value
         let password = e.target.password.value
@@ -22,7 +31,27 @@ export default function LoginPage() {
         }
 
         // fetch check login
-         
+        await fetch(BASE_URL + 'users/login/', {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: phone_number,
+                password: password
+            })
+        })
+        .then(response => response.json())
+        .then(data => { 
+            if (data) {
+                login(data.user)
+                Cookies.set('access_token', data.access_token, { expires: 7 })
+                Cookies.set('access_token', data.refresh_token, { expires: 7 })
+                setTimeout(() => {
+                    navigate('/')
+                }, 100)
+            }
+        })
         
     }
 

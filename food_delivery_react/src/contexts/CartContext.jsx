@@ -9,8 +9,8 @@ export const CartProvider = ({ children }) => {
     const [cart, setCart] = useState({
         amount: 0,
         foods: [],
-        restaurant: null,
-    })
+        restaurant: null
+    }) 
 
     const getPosFoodInCart = (food) => {
         for (let i =0;i<cart.foods.length; i++) {
@@ -66,22 +66,14 @@ export const CartProvider = ({ children }) => {
         }
 
         // dispatch({ type: 'remove', payload: cart }); 
-    };   
-
-    const getFoodQuantity = (food) => {
-        let foodPos = getPosFoodInCart(food) 
-        if (foodPos != -1) {
-            return cart.foods[foodPos].quantity  
-        }
-        return 0 
-    }
+    };    
 
     const payment = async () => { 
         
     }; 
 
     return (
-        <CartContext.Provider value={{ cart, add, remove, getFoodQuantity }}>
+        <CartContext.Provider value={{ cart, add, remove, setCart }}>
             {children}
         </CartContext.Provider>
     );
