@@ -32,13 +32,13 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'username', 'password', 'phone_number', 'role',
-                  'avatar', 'is_active']
-        extra_kwargs = {
-            'password': {
-                'write_only': True
-            }
-        }
+        fields = ['id', 'first_name', 'last_name', 'username', 'phone_number', 'role',
+                  'avatar']
+        # extra_kwargs = {
+        #     'password': {
+        #         'write_only': True
+        #     }
+        # }
 
 
 class FoodCategorySerializer(ModelSerializer):

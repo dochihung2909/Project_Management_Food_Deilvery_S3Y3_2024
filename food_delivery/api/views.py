@@ -139,8 +139,10 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
     @action(methods=['get'], url_path='current-user', detail=False)
     def get_current_user(self, request):
         user = request.user
-        serializer = UserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        if not user.is_anonymous:
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'error': 'Something Wrong!'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['patch'], url_path='current-user/update', detail=False)
     def update_user(self, request, pk):
