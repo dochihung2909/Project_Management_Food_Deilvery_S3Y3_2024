@@ -44,9 +44,9 @@ export default function LoginPage() {
         .then(response => response.json())
         .then(data => { 
             if (data) {
-                login(data.user)
+                login(data.user)  
                 Cookies.set('access_token', data.access_token, { expires: 7 })
-                Cookies.set('access_token', data.refresh_token, { expires: 7 })
+                Cookies.set('refresh_token', data.refresh_token, { expires: 7 })
                 setTimeout(() => {
                     navigate('/')
                 }, 100)

@@ -9,7 +9,7 @@ import {
   Collapse,
   Input,
 } from "@material-tailwind/react";
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import Login from '../Login/Login';
 import { useUser } from '../../contexts/UserContext';
 import { CartDrawer } from '../Drawer/CartDrawer';
@@ -21,6 +21,7 @@ export default function Header() {
     const [openUserMenu, setOpenUserMenu] = React.useState(false);
     const [openCart, setOpenCart] = React.useState(false);
  
+    const navigate = useNavigate()
 
     const userMenuRef = useRef()
 
@@ -76,7 +77,7 @@ export default function Header() {
     return (
       <> 
         <CartDrawer open={openCart} setOpen={setOpenCart}></CartDrawer>
-        {!user && ((openLogin) && <Login setOpenLogin={openLoginModal}></Login>)} 
+        {/* {!user && ((openLogin) && <Login setOpenLogin={openLoginModal}></Login>)}  */}
         <Navbar className="sticky top-0 z-10 h-max max-w-full rounded-none px-4 py-2 lg:px-8 lg:py-4">
         <div className="flex items-center justify-between text-blue-gray-900">
           <Typography  
@@ -163,7 +164,8 @@ export default function Header() {
                     variant="text"
                     size="sm"
                     className="hidden lg:inline-block"
-                    onClick={openLoginModal}
+                    // onClick={openLoginModal}
+                    onClick={() => navigate('/login')}
                   >
                     <span>Log In</span>
                   </Button>} 

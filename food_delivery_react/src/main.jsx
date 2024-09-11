@@ -1,4 +1,4 @@
-import { StrictMode } from 'react' 
+import { StrictMode, useEffect } from 'react' 
 import App from './App.jsx'
 import './index.css'
 
@@ -10,7 +10,7 @@ import {
   Link,
 } from "react-router-dom";
 import { ThemeProvider } from "@material-tailwind/react";
-import { UserProvider } from './contexts/UserContext.jsx';
+import { UserProvider, useUser } from './contexts/UserContext.jsx';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import FoodDetails from './components/Food/FoodDetails.jsx';
 import AppLayout from './components/Layout/AppLayout.jsx';
@@ -19,7 +19,7 @@ import Register from './components/Login/Register.jsx';
 import LoginPage from './components/Login/LoginPage.jsx';
 import RestaurantDetail from './components/Restaurant/RestaurantDetail.jsx';
 import { CartProvider } from './contexts/CartContext.jsx';
-
+import Cookies from 'js-cookie'; 
 
 const router = createBrowserRouter([
   {

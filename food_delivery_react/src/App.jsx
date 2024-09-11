@@ -54,9 +54,9 @@ function App() {
       <div className='container py-12 w-screen mx-auto'>
         <h1 className='text-4xl font-semibold mb-4'>Ưu đãi ở</h1>
         <div className='grid grid-cols-4 gap-y-8 gap-x-4'>
-          {restaurants.map(restaurant => {
+          {restaurants.map((restaurant, index) => {
             return ( 
-              <RestaurantCard restaurant={restaurant}></RestaurantCard>
+              <RestaurantCard key={index} restaurant={restaurant}></RestaurantCard>
             )
           }) } 
         </div>

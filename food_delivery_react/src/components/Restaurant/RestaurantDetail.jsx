@@ -15,10 +15,8 @@ export default function RestaurantDetail() {
 
     const BASE_URL = import.meta.env.VITE_BASE_URL
 
-    useEffect(() => { 
-
-        handleGetCartData()
-
+    useEffect(() => {  
+        handleGetCartData() 
     }, []) 
 
     const handleGetCartData = async () => {
