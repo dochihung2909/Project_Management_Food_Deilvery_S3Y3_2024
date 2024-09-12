@@ -20,7 +20,7 @@ export function CartDrawer({open, setOpen}) {
   useEffect(() => {
     setCartAmount(cart.amount)
   }, [cart.amount])
- 
+  
  
   return (
     <React.Fragment> 

@@ -32,13 +32,13 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'username', 'password', 'phone_number', 'role',
-                  'avatar', 'is_active']
-        extra_kwargs = {
-            'password': {
-                'write_only': True
-            }
-        }
+        fields = ['id', 'first_name', 'last_name', 'username', 'phone_number', 'role',
+                  'avatar']
+        # extra_kwargs = {
+        #     'password': {
+        #         'write_only': True
+        #     }
+        # }
 
 
 class FoodCategorySerializer(ModelSerializer):
@@ -190,6 +190,12 @@ class CartSerializer(ModelSerializer):
 
 
 class CartDetailSerializer(ModelSerializer):
+    food = serializers.SerializerMethodField('get_food')
+
+    def get_food(self, obj):
+        f = obj.food
+        return FoodSerializer(f).data
+
     class Meta:
         model = CartDetail
         fields = ['id', 'cart', 'food', 'quantity', 'amount', 'created_date', 'updated_date']

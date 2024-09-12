@@ -1,5 +1,5 @@
 import { Button, Carousel } from '@material-tailwind/react'
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import FoodCard from '../Cards/FoodCard'
 import { useUser } from '../../contexts/UserContext'
@@ -11,7 +11,7 @@ export default function RestaurantDetail() {
 
     const { user } = useUser()
 
-    const { setCart } = useCart()
+    const { setCart, handleGetCartInfo } = useCart()
 
     const BASE_URL = import.meta.env.VITE_BASE_URL
 

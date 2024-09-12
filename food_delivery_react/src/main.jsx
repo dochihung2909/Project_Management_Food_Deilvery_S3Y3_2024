@@ -10,7 +10,7 @@ import {
   Link,
 } from "react-router-dom";
 import { ThemeProvider } from "@material-tailwind/react";
-import { UserProvider } from './contexts/UserContext.jsx';
+import { UserProvider, useUser } from './contexts/UserContext.jsx';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import FoodDetails from './components/Food/FoodDetails.jsx';
 import AppLayout from './components/Layout/AppLayout.jsx';

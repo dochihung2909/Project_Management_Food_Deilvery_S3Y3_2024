@@ -12,17 +12,16 @@ export default function FoodCartCard({setCart,food}) {
 
     const handleMinus = () => {
         if (quantity > 1) {
-            setQuantity(quantity - 1) 
-            remove(food)  
+            setQuantity(quantity - 1)  
+            remove({...food.food, quantity: -1})  
             setCart(cart.amount)
             console.log(cart) 
         }
     }
 
     const handleAdd = () => { 
-        add(food) 
-        setQuantity(quantity + 1)
-        console.log(cart) 
+        setQuantity(quantity + 1)  
+        add({...food.food, quantity: 1})  
         setCart(cart.amount)
     } 
 
@@ -59,8 +58,8 @@ export default function FoodCartCard({setCart,food}) {
 
         <div className='ml-auto'>
             <div className='flex flex-col justify-end items-end'>
-                <p className='text-primary text-lg'>{formatCurrencyVND((food.price - food.discount) * quantity)} </p>
-                <p className='line-through'>{formatCurrencyVND(food.price)} </p> 
+                <p className='text-primary text-lg'>{formatCurrencyVND((food.food.price - food.food.discount) * quantity)} </p>
+                <p className='line-through'>{formatCurrencyVND(food.food.price)} </p> 
             </div> 
         </div>
 
