@@ -190,6 +190,12 @@ class CartSerializer(ModelSerializer):
 
 
 class CartDetailSerializer(ModelSerializer):
+    food = serializers.SerializerMethodField('get_food')
+
+    def get_food(self, obj):
+        f = obj.food
+        return FoodSerializer(f).data
+
     class Meta:
         model = CartDetail
         fields = ['id', 'cart', 'food', 'quantity', 'amount', 'created_date', 'updated_date']

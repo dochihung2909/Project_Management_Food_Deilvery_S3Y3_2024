@@ -598,18 +598,23 @@ class CartViewSet(viewsets.ViewSet,
 
             restaurant = request.data.get('restaurant')
             user = request.data.get('user')
-            print(restaurant, user)
 
-            cart, created = Cart.objects.get_or_create(
-                user=user,
-                restaurant=restaurant
-            )
+            try:
+                cart = Cart.objects.get(user=user, restaurant=restaurant)
 
-            if created:
+                if cart:
+                    return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
+            except Cart.DoesNotExist:
+                restaurant = Restaurant.objects.get(pk=restaurant)
+                user = User.objects.get(pk=user)
+
+                created = Cart.objects.create(
+                    user = user,
+                    restaurant = restaurant
+                )
                 return Response(CartSerializer(created).data, status=status.HTTP_201_CREATED)
-            else:
-                return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
-        return Response({'error': "Something wrong!"}, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({'error': "Something wrong!"}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['get'], url_path='cart-details', detail=True)
     def get_cart_details(self, request, pk):
@@ -647,22 +652,25 @@ class CartViewSet(viewsets.ViewSet,
             return Response({'error': 'Quantity must be a valid number!'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Kiểm tra 'Món Ăn' đã có trong giỏ hàng chưa
-        cart_detail = CartDetail.objects.get(cart=cart, food=food)
-        if cart_detail:
-            cart_detail.quantity += quantity
-            cart_detail.save()
-            return Response(CartSerializer(cart).data, status=status.HTTP_201_CREATED)
+        try:
+            cart_detail = CartDetail.objects.get(cart=cart, food=food)
+            if cart_detail:
+                cart_detail.quantity += quantity
+                cart_detail.amount = (food.price - food.discount) * cart_detail.quantity
+                cart_detail.save()
+                return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
 
-        amount = (food.price * quantity) - food.discount
-        cart_details = CartDetail.objects.create(
-            cart=cart,
-            food=food,
-            quantity=quantity,
-            amount=amount,
-        )
+        except CartDetail.DoesNotExist:
+            amount = (food.price - food.discount) * quantity
+            cart_details = CartDetail.objects.create(
+                cart=cart,
+                food=food,
+                quantity=quantity,
+                amount=amount,
+            )
 
-        serializer = CartDetailSerializer(cart_details)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            serializer = CartDetailSerializer(cart_details)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @action(methods=['patch'], url_path='update', detail=True)
     def update_cart(self, request, pk):
