@@ -33,9 +33,7 @@ export default function Login({setOpenLogin}) {
                     avatar: credentialResponseDecoded.picture 
                 }  
 
-                login(newUser)
-
-                console.log(data, Cookies.get('access_token'), Cookies.get('refresh_token'))
+                login(newUser) 
             })
     }
 

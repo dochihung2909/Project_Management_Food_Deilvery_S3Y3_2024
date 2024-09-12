@@ -1,5 +1,5 @@
 import { Button, Carousel } from '@material-tailwind/react'
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import FoodCard from '../Cards/FoodCard'
 import { useUser } from '../../contexts/UserContext'
@@ -11,32 +11,15 @@ export default function RestaurantDetail() {
 
     const { user } = useUser()
 
-    const { setCart } = useCart()
+    const { setCart, handleGetCartInfo } = useCart()
 
     const BASE_URL = import.meta.env.VITE_BASE_URL
 
-    useEffect(() => {  
-        handleGetCartData() 
-    }, []) 
-
-    const handleGetCartData = async () => {
-        if (user && restaurant) {
-            await fetch(BASE_URL + 'carts/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    restaurant: restaurant.id,
-                    user: user.id
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data) 
-            })
+    useLayoutEffect(() => {    
+        if (user && restaurant) { 
+            handleGetCartInfo(user.id, restaurant.id)   
         }
-    }
+    }, [user])  
 
   return (
     <>

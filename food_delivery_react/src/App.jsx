@@ -36,8 +36,7 @@ function App() {
     .then(data => {
       if (data.next) {
         setRestaurantNextPage(data.next)
-      }
-      console.log(data.results)
+      } 
       setRestaurants(data.results)
     })
 

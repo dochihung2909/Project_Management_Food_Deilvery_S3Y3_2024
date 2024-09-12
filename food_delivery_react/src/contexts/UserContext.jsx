@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useReducer, useContext } from 'react';
+import React, { createContext, useState, useEffect, useReducer, useContext, useLayoutEffect } from 'react';
 import { UserReducer } from '../states/reducers/UserReducer';
 import Cookies from 'js-cookie';
 
@@ -9,10 +9,7 @@ export const UserProvider = ({ children }) => {
     
     const BASE_URL = import.meta.env.VITE_BASE_URL 
     
-    const accessToken = Cookies.get('access_token')
-
-    console.log(accessToken)
-
+    const accessToken = Cookies.get('access_token')  
      
 
     const handleAuthenticateUser = async () => {
@@ -23,15 +20,11 @@ export const UserProvider = ({ children }) => {
             headers: {
                 'Authorization': 'Bearer ' + accessToken
             }
-        })  
-
-        console.log(await response.status)
+        })   
          
         if (response.status == 200) {
-            const data = await response.json() 
-            console.log(data)
-            login(data) 
-            console.log('login success')
+            const data = await response.json()  
+            login(data)  
         } else if (response.status == 400) {
             const res = await fetch(BASE_URL + 'token/', {
                 method: 'POST',
@@ -60,13 +53,12 @@ export const UserProvider = ({ children }) => {
         }
     }
 
-    useEffect(() => {
-        handleAuthenticateUser()
-        console.log('handle AuthenticateUser')
+    useLayoutEffect(() => {
+        handleAuthenticateUser() 
     }, []) 
 
 
-    const login = async (userData) => {
+    const login = async (userData) => { 
         dispatch({ type: 'login', payload: userData });
     };
       
@@ -78,9 +70,7 @@ export const UserProvider = ({ children }) => {
         setTimeout(() =>{
             dispatch({ type: 'logout' });
             Cookies.remove('access_token')
-            Cookies.remove('refresh_token')
-            console.log(Cookies.get('access_token'))
-            console.log('logged out'); 
+            Cookies.remove('refresh_token') 
         }, 100)
     };
 

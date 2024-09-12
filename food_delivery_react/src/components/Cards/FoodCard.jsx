@@ -36,43 +36,8 @@ export default function FoodCard({food}) {
 
     const handleAddFoodToCart = async (e) => {
       e.stopPropagation()  
-      add({...food, quantity: 1}) 
-
-      if (user) {
-        await fetch(BASE_URL + 'carts/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            user: user.id,
-            restaurant: food.restaurant
-          })
-        })
-        .then(response =>response.json())
-        .then(data => {
-          addFoodToCart(data.id, food.id)
-          console.log(data)
-        }) 
-      }  
-    } 
-
-    const addFoodToCart = async (cartId, foodId) => {
-      await fetch(BASE_URL + `carts/${cartId}/cart-details/`, {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json'
-        },
-        body: JSON.stringify({
-          food: foodId,
-          quantity: 1
-        })
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data)
-      })
-    }
+      add({...food, quantity: 1})   
+    }  
 
     return (
       <>      
