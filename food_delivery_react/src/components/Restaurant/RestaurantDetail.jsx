@@ -1,11 +1,11 @@
 import { Button, Carousel } from '@material-tailwind/react'
 import React, { useEffect, useLayoutEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import FoodCard from '../Cards/FoodCard'
 import { useUser } from '../../contexts/UserContext'
 import { useCart } from '../../contexts/CartContext'
 
-export default function RestaurantDetail() {
+export default function RestaurantDetail() {  
     const { state } = useLocation()
     const { restaurant } = state
 
@@ -23,20 +23,7 @@ export default function RestaurantDetail() {
 
     const handleGetCartData = async () => {
         if (user && restaurant) {
-            await fetch(BASE_URL + 'carts/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    restaurant: restaurant.id,
-                    user: user.id
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data)
-                })
+            handleGetCartInfo(user.id, restaurant.id)
         }
     }
 

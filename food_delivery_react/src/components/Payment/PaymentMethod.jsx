@@ -16,6 +16,7 @@ const PaymentMethod = () => {
                     id="cod"
                     name="payment"
                     value="cod"
+                    defaultChecked 
                     onChange={(e) => setSelectedMethod(e.target.value)}
                     className="mr-2"
                 />
