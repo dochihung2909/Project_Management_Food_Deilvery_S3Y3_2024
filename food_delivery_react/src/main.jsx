@@ -1,4 +1,4 @@
-import { StrictMode, useEffect } from 'react' 
+import { StrictMode } from 'react'
 import App from './App.jsx'
 import './index.css'
 
@@ -14,12 +14,14 @@ import { UserProvider, useUser } from './contexts/UserContext.jsx';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import FoodDetails from './components/Food/FoodDetails.jsx';
 import AppLayout from './components/Layout/AppLayout.jsx';
-import Login from './components/Login/Login.jsx'; 
+import Login from './components/Login/Login.jsx';
 import Register from './components/Login/Register.jsx';
 import LoginPage from './components/Login/LoginPage.jsx';
 import RestaurantDetail from './components/Restaurant/RestaurantDetail.jsx';
 import { CartProvider } from './contexts/CartContext.jsx';
-import Cookies from 'js-cookie'; 
+import Payment from './components/Payment/PaymentPage.jsx';
+import PaymentPage from './components/Payment/PaymentPage.jsx';
+
 
 const router = createBrowserRouter([
   {
@@ -36,14 +38,14 @@ const router = createBrowserRouter([
         element: (
           <FoodDetails></FoodDetails>
         ),
-      },  
+      },
       {
         path: "/restaurant/:id",
         element: (
           <RestaurantDetail></RestaurantDetail>
         ),
       },
-      
+
     ]
   },
   {
@@ -51,11 +53,17 @@ const router = createBrowserRouter([
     element: (
       <Register></Register>
     ),
-  },   
+  },
   {
     path: "/login",
     element: (
       <LoginPage></LoginPage>
+    ),
+  },
+  {
+    path: "/payment",
+    element: (
+      <PaymentPage />
     ),
   },
 ]);
@@ -67,8 +75,8 @@ createRoot(document.getElementById('root')).render(
       <UserProvider>
         <CartProvider>
           <GoogleOAuthProvider clientId="1026719700159-cj1sq0dvesgoj6qu2944rr6qft24gbi2.apps.googleusercontent.com">
-            <RouterProvider router={router} />  
-          </GoogleOAuthProvider> 
+            <RouterProvider router={router} />
+          </GoogleOAuthProvider>
         </CartProvider>
       </UserProvider>
     </ThemeProvider>
