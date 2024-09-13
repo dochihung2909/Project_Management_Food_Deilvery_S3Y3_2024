@@ -48,10 +48,10 @@ export default function FoodCartCard({setCart,food}) {
                 className='h-14 w-14 rounded-lg' />
             <div className='mx-4'>
                 <p className='text-lg font-medium'>
-                    {food.name}
+                    {food.food.name}
                 </p>
                 <p className='text-md text-gray-500'>
-                    {food.description}
+                    {food.food.description}
                 </p>
             </div>
         </div>
