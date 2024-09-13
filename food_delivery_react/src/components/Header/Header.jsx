@@ -54,6 +54,26 @@ export default function Header() {
       );
     }, []); 
 
+    useEffect(() => {
+      if (openCart) { 
+        window.scrollTo(0, 0);
+        let scrollTop =
+                window.pageYOffset ||
+                document.documentElement.scrollTop;
+        let scrollLeft =
+                window.pageXOffset ||
+                document.documentElement.scrollLeft;
+
+                // if any scroll is attempted,
+                // set this to the previous value
+                window.onscroll = function () {
+                    window.scrollTo(scrollLeft, scrollTop);
+                };
+      } else {
+        window.onscroll = function () { };
+      }
+    }, [openCart])
+
     const openLoginModal = () => {
       setOpenLogin(!openLogin);
       console.debug(openLogin)  

@@ -47,13 +47,13 @@ export function CartDrawer({open, setOpen}) {
             </svg>
           </IconButton>
         </div>
-        <Typography color="gray" className="mb-8 pr-4 font-normal">
+        <div color="gray" className="pr-4 h-[calc(100%-150px)] overflow-y-auto font-normal">
           {cart.foods.map((food,index) => {
             return (
                 <FoodCartCard setCart={setCartAmount} key={index} food={food}></FoodCartCard>
             )
           })}
-        </Typography>
+        </div>
         <div className="absolute bottom-0 left-0 w-full">
             <div className="p-4 w-full"> 
                 <div className="text-xl mb-4 flex justify-between">

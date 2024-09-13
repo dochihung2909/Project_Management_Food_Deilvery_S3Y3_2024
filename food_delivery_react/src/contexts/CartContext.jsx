@@ -17,8 +17,7 @@ export const CartProvider = ({ children }) => {
 
     const { user } = useUser()
 
-    const handleGetCartInfo = async (userID, restaurantID) => { 
-        console.log(user)
+    const handleGetCartInfo = async (userID, restaurantID) => {  
         const res = await fetch(BASE_URL + 'carts/', {
             method: 'POST',
             headers: {
@@ -30,8 +29,9 @@ export const CartProvider = ({ children }) => {
             })
         })
 
-        if (res.status == 200) {
+        if (res.status == 200 || res.status == 201) {
             const data = await res.json()  
+            console.log(data)
             setCart({
                 id: data.id,
                 amount: data.total_amount,
@@ -70,13 +70,12 @@ export const CartProvider = ({ children }) => {
     } 
 
     const add = async (food) => {  
+        console.log(food)
         if (food) {
-            console.log(food)
+            console.log(food, cart)
             if (food.restaurant != cart.restaurant) { 
-                cart.foods = []  
-                cart.amount = 0 
-            }  
-            cart.restaurant = food.restaurant  
+                handleGetCartInfo(user.id, food.restaurant) 
+            }    
             addFoodToCart(cart.id, food)   
         }
     };
@@ -94,16 +93,22 @@ export const CartProvider = ({ children }) => {
           })
         })
         
-        if (response.status == 201 || response.status == 200) {
+        if (response.status == 200 || response.status == 201) { 
             const data = await response.json() 
             console.log(data)
-            setCart({...cart,
-                id: data.id,
-                amount: data.total_amount,
-                foods: data.cart_details,
-                restaurant: data.restaurant
-            }) 
-        }
+            if (response.status == 201) {
+                let newFoods = cart.foods
+                newFoods.push(data)
+                setCart({...cart, foods: newFoods}) 
+            } else { 
+                setCart({...cart,
+                    id: data.id,
+                    amount: data.total_amount,
+                    foods: data.cart_details,
+                    restaurant: data.restaurant
+                })  
+            }
+        } 
     }
       
     const remove = async (food) => {   
