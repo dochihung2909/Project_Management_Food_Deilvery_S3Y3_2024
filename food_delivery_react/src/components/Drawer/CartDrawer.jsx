@@ -8,10 +8,13 @@ import {
 import { useCart } from "../../contexts/CartContext";
 import { formatCurrencyVND } from "../../utils/currency";
 import FoodCartCard from "../Cards/FoodCartCard";
+import { useNavigate } from "react-router-dom";
  
 export function CartDrawer({open, setOpen}) {  
   
   const closeDrawer = () => setOpen(false);
+
+  const navigate = useNavigate()
 
   const { cart } = useCart()
 
@@ -21,6 +24,9 @@ export function CartDrawer({open, setOpen}) {
     setCartAmount(cart.amount)
   }, [cart.amount])
   
+  useEffect(() => {
+    console.log(cart)
+  }, []) 
  
   return (
     <React.Fragment> 
@@ -60,7 +66,7 @@ export function CartDrawer({open, setOpen}) {
                     <h1>Tổng cộng</h1>
                     <h1>{formatCurrencyVND(cartAmount)}</h1>
                 </div> 
-                <Button className="w-full bg-primary">Thanh toán</Button> 
+                <Button disabled={cart.amount == 0} onClick={() => navigate('/payment')} className="w-full bg-primary">Thanh toán</Button> 
             </div>
         </div>
       </Drawer>
