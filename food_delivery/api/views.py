@@ -247,7 +247,7 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
         user = request.user
         if not user.is_anonymous:
             carts = user.cart_set.filter(active=True).all()
-            payments = Payment.objects.filter(cart__in=carts, active=True)
+            payments = Payment.objects.filter(cart__in=carts, active=True).order_by('-created_date')
 
             serializer = PaymentSerializer(payments, many=True)
 
