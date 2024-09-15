@@ -8,6 +8,7 @@ from django.db.models import Avg
 from django.utils import timezone
 from rest_framework import viewsets, permissions, generics, status
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from .models import *
@@ -24,6 +25,10 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
     pagination_class = UserPaginator
 
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action in ['register', 'login']:
+            return [permissions.AllowAny()]
 
     @action(methods=['post'], url_path='register', detail=False)
     def register(self, request):
@@ -304,7 +309,7 @@ class RestaurantCategoryViewSet(viewsets.ViewSet,
 class FoodCategoryViewSet(viewsets.ViewSet,
                           generics.ListAPIView,
                           generics.RetrieveAPIView,
-                          generics.CreateAPIView):
+                          generics.CreateAPIView,):
     queryset = FoodCategory.objects.filter(active=True)
     serializer_class = FoodCategorySerializer
     # permission_classes = [permissions.IsAuthenticated]
@@ -404,7 +409,8 @@ class RestaurantViewSet(viewsets.ViewSet,
 
 class FoodViewSet(viewsets.ViewSet,
                   generics.ListAPIView,
-                  generics.RetrieveAPIView):
+                  generics.RetrieveAPIView,
+                  generics.UpdateAPIView):
     queryset = Food.objects.filter(active=True)
     serializer_class = FoodSerializer
 
