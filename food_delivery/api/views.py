@@ -387,6 +387,17 @@ class RestaurantViewSet(viewsets.ViewSet,
         serializer = RatingSerializer(ratings, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(methods=['get'], url_path='employees', detail=True)
+    def get_all_employees(self, request, pk):
+        restaurant = self.get_object()
+        employees = Employee.objects.filter(res=restaurant)
+
+        if not employees:
+            return Response({'error': 'Empty employees'}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = EmployeeSerializer(employees, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class FoodViewSet(viewsets.ViewSet,
                   generics.ListAPIView,
