@@ -13,28 +13,28 @@ import { useNavigate } from "react-router-dom";
 import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
- 
-export function CartDrawer({open, setOpen}) {  
-  
+
+export function CartDrawer({ open, setOpen }) {
+
   const closeDrawer = () => setOpen(false);
 
   const navigate = useNavigate()
 
-  const { cart } = useCart() 
+  const { cart } = useCart()
 
-  const [cartAmount, setCartAmount] = useState(cart.amount)    
+  const [cartAmount, setCartAmount] = useState(cart.amount)
 
   useEffect(() => {
-    setCartAmount(cart.amount) 
+    setCartAmount(cart.amount)
   }, [cart.amount])
-  
+
   useEffect(() => {
     console.log(cart)
-  }, [])  
- 
+  }, [])
+
   return (
-    <React.Fragment>    
-      <Drawer 
+    <React.Fragment>
+      <Drawer
         size={500} placement="right" open={open} onClose={closeDrawer} className="p-4">
         <div className="mb-6 flex items-center justify-between">
           <Typography className="text-2xl" variant="h5" color="blue-gray">
@@ -58,20 +58,20 @@ export function CartDrawer({open, setOpen}) {
           </IconButton>
         </div>
         <div color="gray" className="pr-4 h-[calc(100%-150px)] overflow-y-auto font-normal">
-          {cart.foods.map((food,index) => {
+          {cart.foods.map((food, index) => {
             return (
-                <FoodCartCard key={index} food={food}></FoodCartCard>
+              <FoodCartCard key={index} food={food}></FoodCartCard>
             )
           })}
         </div>
         <div className="absolute bottom-0 left-0 w-full">
-            <div className="p-4 w-full"> 
-                <div className="text-xl mb-4 flex justify-between">
-                    <h1>Tổng cộng</h1>
-                    <h1>{formatCurrencyVND(cartAmount)}</h1>
-                </div> 
-                <Button disabled={cartAmount == 0} onClick={() => navigate('/payment')} className="w-full bg-primary">Thanh toán</Button> 
+          <div className="p-4 w-full">
+            <div className="text-xl mb-4 flex justify-between">
+              <h1>Tổng cộng</h1>
+              <h1>{formatCurrencyVND(cartAmount)}</h1>
             </div>
+            <Button disabled={cartAmount == 0} onClick={() => navigate('/payment')} className="w-full bg-primary">Thanh toán</Button>
+          </div>
         </div>
       </Drawer>
     </React.Fragment>
