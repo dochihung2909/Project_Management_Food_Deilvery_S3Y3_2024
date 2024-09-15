@@ -23,7 +23,7 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
     serializer_class = UserSerializer
     pagination_class = UserPaginator
 
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     @action(methods=['post'], url_path='register', detail=False)
     def register(self, request):
@@ -245,12 +245,15 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
     @action(methods=['get'], url_path='current-user/payments', detail=False)
     def get_all_payments(self, request):
         user = request.user
-        carts = user.cart_set.filter(active=True).all()
-        payments = Payment.objects.filter(cart__in=carts, active=True)
+        if not user.is_anonymous:
+            carts = user.cart_set.filter(active=True).all()
+            payments = Payment.objects.filter(cart__in=carts, active=True)
 
-        serializer = CartSerializer(payments, many=True)
+            serializer = PaymentSerializer(payments, many=True)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response({"error": 'Need Login to continue'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['get'], url_path='current-user/notifications', detail=False)
     def get_all_notifications(self, request):

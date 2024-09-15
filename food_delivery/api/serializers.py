@@ -118,7 +118,6 @@ class FoodSerializer(ModelSerializer):
 
 
 class RestaurantCategorySerializer(ModelSerializer):
-
     class Meta:
         model = RestaurantCategory
         fields = ['id', 'name']
@@ -160,9 +159,6 @@ class RestaurantSerializer(ModelSerializer):
                   'created_date', 'updated_date', 'active', 'foods']
 
 
-
-
-
 class NotificationSerializer(ModelSerializer):
     class Meta:
         model = Notification
@@ -186,7 +182,7 @@ class CartSerializer(ModelSerializer):
 
     class Meta:
         model = Cart
-        fields = ['id', 'note', 'status', 'user', 'restaurant', 'created_date', 'active', 'cart_details', 'total_amount']
+        fields = ['id', 'note', 'status', 'user', 'total_amount', 'restaurant', 'created_date', 'active', 'cart_details']
 
 
 class CartDetailSerializer(ModelSerializer):
@@ -202,10 +198,38 @@ class CartDetailSerializer(ModelSerializer):
         read_only_fields = ['amount']
 
 
+class RestaurantMiniSerializer(ModelSerializer):
+    class Meta:
+        model = Restaurant
+        fields = ['id', 'name']
+
+
 class PaymentSerializer(ModelSerializer):
+    cart = serializers.SerializerMethodField('get_cart')
+    restaurant = serializers.SerializerMethodField('get_restaurant')
+    method = serializers.SerializerMethodField('get_method')
+    status = serializers.SerializerMethodField('get_status')
+
+    def get_status(self, payment):
+        status = payment.get_status_display()
+        return status
+
+    def get_method(self, payment):
+        method = payment.get_method_display()
+        return method
+
+    def get_cart(self, payment):
+        cart = Cart.objects.get(payment=payment)
+        return CartSerializer(cart).data
+
+    def get_restaurant(self, payment):
+        cart = Cart.objects.filter(payment=payment).first()
+        res = Restaurant.objects.get(cart=cart)
+        return RestaurantSerializer(res).data
+
     class Meta:
         model = Payment
-        fields = ['id', 'status', 'method', 'note', 'cart', 'created_date', 'active']
+        fields = ['id', 'status', 'method', 'note', 'restaurant', 'cart', 'created_date', 'active']
 
 
 class RatingSerializer(ModelSerializer):
