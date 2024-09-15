@@ -4,6 +4,7 @@ import { useUser } from '../../contexts/UserContext'
 import OrderCard from './OrderCard'
 import { Button } from '@material-tailwind/react'
 import { formatCurrencyVND } from '../../utils/currency'
+import { dateFormat } from '../../utils/dateFormat'
 
 export default function OrderHistory() {
     const BASE_URL = import.meta.env.VITE_BASE_URL
@@ -43,7 +44,7 @@ export default function OrderHistory() {
                         <OrderCard key={index} restaurant={payment?.restaurant} cart={payment?.cart} method={payment.method} status={payment.status}></OrderCard>
                         <div className='flex justify-between mt-2 border-t-2 items-center'>
                             <div>
-                                {payment.created_date}
+                                {dateFormat(payment.created_date)}
                             </div>
                             <div className='flex items-center'>
                                 <p className='text-xl my-2 mr-2'>
