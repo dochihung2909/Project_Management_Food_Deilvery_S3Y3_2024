@@ -73,14 +73,18 @@ export const CartProvider = ({ children }) => {
         console.log(food)
         if (food) {
             console.log(food, cart)
-            if (food.restaurant != cart.restaurant) { 
-                handleGetCartInfo(user.id, food.restaurant) 
-            }    
-            addFoodToCart(cart.id, food)   
+            if (cart.id != null) {
+                if (food.restaurant != cart.restaurant) { 
+                    await handleGetCartInfo(user.id, food.restaurant) 
+                }    
+            } else {
+                await handleGetCartInfo(user.id, food.restaurant) 
+            }
+            await addFoodToCart(cart.id, food)   
         }
     };
 
-    const addFoodToCart = async (cartId, food) => {  
+    const addFoodToCart = async (cartId, food, isDelete = false) => {  
         console.log(cartId, food)
         const response = await fetch(BASE_URL + `carts/${cartId}/cart-details/`, {
           method: 'POST',
@@ -89,7 +93,8 @@ export const CartProvider = ({ children }) => {
           },
           body: JSON.stringify({
             food: food.id,
-            quantity: food.quantity
+            quantity: food.quantity,
+            is_delete: isDelete
           })
         })
         
@@ -99,7 +104,7 @@ export const CartProvider = ({ children }) => {
             if (response.status == 201) {
                 let newFoods = cart.foods
                 newFoods.push(data)
-                setCart({...cart, foods: newFoods}) 
+                setCart({...cart, amount: cart.amount + data.amount, foods: newFoods}) 
             } else { 
                 setCart({...cart,
                     id: data.id,
@@ -113,20 +118,9 @@ export const CartProvider = ({ children }) => {
       
     const remove = async (food) => {   
         let foodPos = getPosFoodInCart(food)    
-        if (foodPos != -1) {
-            // let f = cart.foods[foodPos] 
-            // if (f.quantity > 1) { 
-            //     newCart[foodPos].quantity -= 1
-            // }   
-            // else {
-            //     newCart.foods.splice(foodPos,1) 
-            // }  
-            // cart.foods = newCart 
-            // cart.amount = calcTotalAmount()
-            addFoodToCart(cart.id, food)
-        }
-
-        // dispatch({ type: 'remove', payload: cart }); 
+        if (foodPos != -1) { 
+            await addFoodToCart(cart.id, food, true)
+        } 
     };    
 
     const payment = async () => { 

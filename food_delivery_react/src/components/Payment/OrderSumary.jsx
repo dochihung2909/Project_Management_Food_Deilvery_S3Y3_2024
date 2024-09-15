@@ -5,11 +5,11 @@ import FoodCartCard from '../Cards/FoodCartCard';
 import { formatCurrencyVND } from '../../utils/currency';
 import { useNavigate } from 'react-router-dom';
 
-const OrderSummary = ({  foods, totalAmount }) => {
+const OrderSummary = ({  foods, totalAmount, deliveryCost = 15000 }) => {
     const [showAll, setShowAll] = useState(false)
 
     const displayedFoods = (showAll ? foods : foods.slice(0, 2)) || []
-    const navigate = useNavigate()
+    const navigate = useNavigate() 
 
     useEffect(() => {
         if (foods.length == 0) {
@@ -58,12 +58,12 @@ const OrderSummary = ({  foods, totalAmount }) => {
 
             <div className="flex justify-between">
                 <p>Phí vận chuyển</p>
-                <span>15,000đ</span>
+                <span>{formatCurrencyVND(deliveryCost)}</span>
             </div>
 
             <div className='flex justify-between text-primary text-lg font-semibold'>
                 <p>Tổng cộng</p>
-                <span>{formatCurrencyVND(totalAmount)}</span>
+                <span>{formatCurrencyVND(totalAmount + deliveryCost)}</span>
             </div>
             {/* <FoodCard /> */}
         </div>

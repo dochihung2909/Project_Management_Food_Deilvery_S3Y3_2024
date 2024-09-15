@@ -3,31 +3,27 @@ import React, { useEffect, useLayoutEffect, useState } from 'react'
 import { useCart } from '../../contexts/CartContext'
 import { formatCurrencyVND } from '../../utils/currency'
 
-export default function FoodCartCard({setCart,food}) {  
+export default function FoodCartCard({food}) {  
 
-    const { cart, add, remove } = useCart()   
+    const { add, remove } = useCart()   
 
-    const [quantity, setQuantity] = useState(food.quantity)     
+    const [quantity, setQuantity] = useState(food.quantity)      
  
 
     const handleMinus = () => {
-        if (quantity > 1) {
-            setQuantity(quantity - 1)  
-            remove({...food.food, quantity: -1})  
-            setCart(cart.amount)
-            console.log(cart) 
-        }
+        setQuantity(quantity - 1)   
+        remove({...food.food, quantity: 1})    
     }
 
     const handleAdd = () => { 
         setQuantity(quantity + 1)  
-        add({...food.food, quantity: 1})  
-        setCart(cart.amount)
+        add({...food.food, quantity: 1})   
     } 
 
     useEffect(() => { 
         setQuantity(food.quantity) 
     }, [food])
+
 
   return (
     <div className='flex my-2'>
@@ -62,7 +58,6 @@ export default function FoodCartCard({setCart,food}) {
                 <p className='line-through'>{formatCurrencyVND(food.food.price)} </p> 
             </div> 
         </div>
-
 
     </div>
   )
