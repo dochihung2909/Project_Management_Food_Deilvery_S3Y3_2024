@@ -9,6 +9,10 @@ import { useCart } from "../../contexts/CartContext";
 import { formatCurrencyVND } from "../../utils/currency";
 import FoodCartCard from "../Cards/FoodCartCard";
 import { useNavigate } from "react-router-dom";
+
+import Modal from 'react-modal';
+
+Modal.setAppElement('#root');
  
 export function CartDrawer({open, setOpen}) {  
   
@@ -16,20 +20,20 @@ export function CartDrawer({open, setOpen}) {
 
   const navigate = useNavigate()
 
-  const { cart } = useCart()
+  const { cart } = useCart() 
 
-  const [cartAmount, setCartAmount] = useState(cart.amount)   
+  const [cartAmount, setCartAmount] = useState(cart.amount)    
 
   useEffect(() => {
-    setCartAmount(cart.amount)
+    setCartAmount(cart.amount) 
   }, [cart.amount])
   
   useEffect(() => {
     console.log(cart)
-  }, []) 
+  }, [])  
  
   return (
-    <React.Fragment> 
+    <React.Fragment>    
       <Drawer 
         size={500} placement="right" open={open} onClose={closeDrawer} className="p-4">
         <div className="mb-6 flex items-center justify-between">
@@ -56,7 +60,7 @@ export function CartDrawer({open, setOpen}) {
         <div color="gray" className="pr-4 h-[calc(100%-150px)] overflow-y-auto font-normal">
           {cart.foods.map((food,index) => {
             return (
-                <FoodCartCard setCart={setCartAmount} key={index} food={food}></FoodCartCard>
+                <FoodCartCard key={index} food={food}></FoodCartCard>
             )
           })}
         </div>
@@ -66,7 +70,7 @@ export function CartDrawer({open, setOpen}) {
                     <h1>Tổng cộng</h1>
                     <h1>{formatCurrencyVND(cartAmount)}</h1>
                 </div> 
-                <Button disabled={cart.amount == 0} onClick={() => navigate('/payment')} className="w-full bg-primary">Thanh toán</Button> 
+                <Button disabled={cartAmount == 0} onClick={() => navigate('/payment')} className="w-full bg-primary">Thanh toán</Button> 
             </div>
         </div>
       </Drawer>

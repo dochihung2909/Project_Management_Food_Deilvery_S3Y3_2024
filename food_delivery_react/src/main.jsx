@@ -21,7 +21,9 @@ import RestaurantDetail from './components/Restaurant/RestaurantDetail.jsx';
 import { CartProvider } from './contexts/CartContext.jsx';
 import Payment from './components/Payment/PaymentPage.jsx';
 import PaymentPage from './components/Payment/PaymentPage.jsx';
-import RestaurantEdit from './components/Restaurant/RestaurantEdit.jsx';
+import RestaurantEdit from './components/Restaurant/RestaurantEdit.jsx'; 
+import PaymentSuccess from './components/Payment/PaymentSuccess.jsx'; 
+import OrderHistory from './components/OrderHistory/OrderHistory.jsx';
 
 
 const router = createBrowserRouter([
@@ -46,6 +48,18 @@ const router = createBrowserRouter([
           <RestaurantDetail></RestaurantDetail>
         ),
       },
+      {
+        path: "/payment-success",
+        element: (
+          <PaymentSuccess></PaymentSuccess>
+        ),
+      },  
+      {
+        path: "/my-orders",
+        element: (
+          <OrderHistory></OrderHistory>
+        ),
+      }, 
     ]
   },
   {

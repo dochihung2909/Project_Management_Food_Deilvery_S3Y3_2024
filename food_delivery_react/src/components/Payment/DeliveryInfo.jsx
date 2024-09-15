@@ -1,6 +1,6 @@
 import React from 'react';
 
-const DeliveryInfo = () => {
+const DeliveryInfo = ({setPayment}) => {
     return (
         <div className="bg-white p-4 rounded-lg shadow-md mb-6">
             <h3 className="text-lg font-semibold mb-2 text-[#ac4a22]">Giao đến</h3>
@@ -24,6 +24,12 @@ const DeliveryInfo = () => {
                     <p className='text-lg mt-2'>Ghi chú</p>
                     <input
                         placeholder="Ghi chú"
+                        onChange={(e) => setPayment((prev) => {
+                            return {
+                                ...prev,
+                                note: e.target.value
+                            }
+                        })}
                         className="w-full p-2 border rounded-md"
                     ></input>
                 </div>

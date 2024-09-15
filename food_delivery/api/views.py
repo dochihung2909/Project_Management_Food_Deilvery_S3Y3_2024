@@ -23,7 +23,7 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
     serializer_class = UserSerializer
     pagination_class = UserPaginator
 
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     @action(methods=['post'], url_path='register', detail=False)
     def register(self, request):
@@ -245,12 +245,15 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
     @action(methods=['get'], url_path='current-user/payments', detail=False)
     def get_all_payments(self, request):
         user = request.user
-        carts = user.cart_set.filter(active=True).all()
-        payments = Payment.objects.filter(cart__in=carts, active=True)
+        if not user.is_anonymous:
+            carts = user.cart_set.filter(active=True).all()
+            payments = Payment.objects.filter(cart__in=carts, active=True)
 
-        serializer = CartSerializer(payments, many=True)
+            serializer = PaymentSerializer(payments, many=True)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response({"error": 'Need Login to continue'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['get'], url_path='current-user/notifications', detail=False)
     def get_all_notifications(self, request):
@@ -591,7 +594,8 @@ class CartViewSet(viewsets.ViewSet,
                   generics.ListAPIView,
                   generics.RetrieveAPIView,
                   generics.UpdateAPIView,
-                  generics.CreateAPIView):
+                  generics.CreateAPIView,
+                  generics.DestroyAPIView):
     queryset = Cart.objects.filter(active=True)
     serializer_class = CartSerializer
 
@@ -611,7 +615,8 @@ class CartViewSet(viewsets.ViewSet,
             user = request.data.get('user')
 
             try:
-                cart = Cart.objects.get(user=user, restaurant=restaurant)
+                cart = Cart.objects.get(user=user, restaurant=restaurant, status=0)
+                print(cart)
 
                 if cart:
                     return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
@@ -647,9 +652,14 @@ class CartViewSet(viewsets.ViewSet,
         food_id = request.data.get('food')
         quantity = request.data.get('quantity')
 
+        is_delete = request.data.get('is_delete')
+
         # Lấy 'Món Ăn'
         try:
             food = Food.objects.get(pk=food_id)
+
+            if cart.restaurant != food.restaurant:
+                return Response({'error': "NOT GOOD"}, status=status.HTTP_400_BAD_REQUEST)
         except Food.DoesNotExist:
             return Response({'error': 'Food not found!'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -665,10 +675,21 @@ class CartViewSet(viewsets.ViewSet,
         # Kiểm tra 'Món Ăn' đã có trong giỏ hàng chưa
         try:
             cart_detail = CartDetail.objects.get(cart=cart, food=food)
+
             if cart_detail:
-                cart_detail.quantity += quantity
+                print(quantity)
+                if is_delete:
+                    cart_quantity = cart_detail.quantity
+                    if cart_quantity <= quantity:
+                        cart_detail.delete()
+                        return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
+                    else:
+                        cart_detail.quantity -= quantity
+                else:
+                    cart_detail.quantity += quantity
                 cart_detail.amount = (food.price - food.discount) * cart_detail.quantity
                 cart_detail.save()
+
                 return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
 
         except CartDetail.DoesNotExist:
@@ -710,7 +731,7 @@ class CartViewSet(viewsets.ViewSet,
     @action(methods=['post'], url_path='payments', detail=True)
     def add_payment(self, request, pk):
         cart = self.get_object()
-        required_fields = ['cart', 'status', 'method']
+        required_fields = ['status', 'method']
         missing_fields = [field for field in required_fields if not request.data.get(field)]
         if missing_fields:
             return Response({'error': f"{', '.join(missing_fields)} required"},
@@ -738,19 +759,25 @@ class CartViewSet(viewsets.ViewSet,
         except:
             return Response({'error': 'method must be a valid number!'}, status=status.HTTP_400_BAD_REQUEST)
 
-        isCartPaid = Payment.objects.filter(cart=cart).exists()
-        if isCartPaid:
-            return Response({'error': 'This cart has been paid!'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            isCartPaid = Payment.objects.filter(cart=cart).exists()
+            if isCartPaid:
+                return Response({'error': 'This cart has been paid!'}, status=status.HTTP_400_BAD_REQUEST)
 
-        payment = Payment.objects.create(
-            cart=cart,
-            status=status_payment,
-            method=method,
-            note=note,
-        )
+            payment = Payment.objects.create(
+                cart=cart,
+                status=status_payment,
+                method=method,
+                note=note,
+            )
 
-        serializer = PaymentSerializer(payment)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+            cart.status = 1
+            cart.save()
+
+            serializer = PaymentSerializer(payment)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Payment.DoesNotExist:
+            return Response({'error': 'Payment Does Not Exit'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CartDetailViewSet(viewsets.ViewSet,

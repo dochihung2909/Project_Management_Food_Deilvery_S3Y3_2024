@@ -7,21 +7,19 @@ import { useCart } from '../../contexts/CartContext'
 
 export default function RestaurantDetail() {  
     const { state } = useLocation()
-    const { restaurant } = state
+    const { restaurant } = state 
 
     const { user } = useUser()
 
-    const { setCart, handleGetCartInfo } = useCart()
+    const { cart, handleGetCartInfo } = useCart()
 
     const BASE_URL = import.meta.env.VITE_BASE_URL
 
-    useEffect(() => {
+    useLayoutEffect(() => { 
+        handleGetCartData()  
+    }, [user])
 
-        handleGetCartData()
-
-    }, [])
-
-    const handleGetCartData = async () => {
+    const handleGetCartData = async () => {  
         if (user && restaurant) {
             handleGetCartInfo(user.id, restaurant.id)
         }

@@ -3,8 +3,7 @@ import { AiOutlineBank } from 'react-icons/ai';
 import { BsCashCoin } from 'react-icons/bs';
 import { MdOutlineAccountBalanceWallet } from 'react-icons/md';
 
-const PaymentMethod = () => {
-    const [selectedMethod, setSelectedMethod] = useState('');
+const PaymentMethod = ({ setPayment}) => { 
 
     return (
         <div className="bg-white p-4 rounded-lg shadow-md mb-6">
@@ -15,9 +14,9 @@ const PaymentMethod = () => {
                     type="radio"
                     id="cod"
                     name="payment"
-                    value="cod"
+                    value="0"
                     defaultChecked 
-                    onChange={(e) => setSelectedMethod(e.target.value)}
+                    onChange={(e) => setPayment((prev) => ({...prev, method: e.target.value}))}
                     className="mr-2"
                 />
                 <BsCashCoin />
@@ -28,8 +27,8 @@ const PaymentMethod = () => {
                     type="radio"
                     id="momo"
                     name="payment"
-                    value="momo"
-                    onChange={(e) => setSelectedMethod(e.target.value)}
+                    value="2"
+                    onChange={(e) => setPayment((prev) => ({...prev, method: e.target.value}))}
                     className="mr-2"
                 />
                 <MdOutlineAccountBalanceWallet />
@@ -40,8 +39,8 @@ const PaymentMethod = () => {
                     type="radio"
                     id="bank"
                     name="payment"
-                    value="bank"
-                    onChange={(e) => setSelectedMethod(e.target.value)}
+                    value="1"
+                    onChange={(e) => setPayment((prev) => ({...prev, method: e.target.value}))}
                     className="mr-2"
                 />
                 <AiOutlineBank />
