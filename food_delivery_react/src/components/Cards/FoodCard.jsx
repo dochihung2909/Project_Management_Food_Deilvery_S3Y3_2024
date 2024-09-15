@@ -58,7 +58,7 @@ export default function FoodCard({ food }) {
     //       addFoodToCart(data.id, food.id) 
     //     })
     // }
-  } 
+  }
 
   return (
     <>
