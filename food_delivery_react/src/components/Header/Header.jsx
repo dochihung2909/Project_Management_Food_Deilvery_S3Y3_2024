@@ -84,8 +84,8 @@ export default function Header() {
             
             className="mr-4 cursor-pointer py-1.5 font-medium"
           >
-            <NavLink to="/">
-              Material Tailwind
+            <NavLink className='text-primary font-semibold text-2xl' to="/">
+              Food Delivery
             </NavLink>
           </Typography>
 
@@ -145,6 +145,13 @@ export default function Header() {
                           <Button className='text-left  w-full py-2 bg-transparent px-0 text-black hover:shadow-transparent shadow-transparent'>
                             Thông tin cá nhân
                           </Button>
+                        </li>  
+                        <li className=' w-full'>
+                          <NavLink to='/my-orders'>
+                            <Button className='text-left  w-full py-2 bg-transparent px-0 text-black hover:shadow-transparent shadow-transparent'>
+                              Đơn hàng của tôi
+                            </Button> 
+                          </NavLink>
                         </li> 
                         <li className='h-[2px] w-full bg-gray-600 bg-opacity-40'></li>
                         <li className=' w-full'>

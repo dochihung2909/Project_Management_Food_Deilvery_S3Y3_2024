@@ -7,7 +7,7 @@ import { useCart } from '../../contexts/CartContext'
 
 export default function RestaurantDetail() {  
     const { state } = useLocation()
-    const { restaurant } = state
+    const { restaurant } = state 
 
     const { user } = useUser()
 
