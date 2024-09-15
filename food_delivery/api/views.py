@@ -11,6 +11,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from . import perms
 from .models import *
 from .serializers import *
 from .paginators import *
@@ -321,8 +322,7 @@ class RestaurantViewSet(viewsets.ViewSet,
                         generics.UpdateAPIView):
     queryset = Restaurant.objects.filter(active=True)
     serializer_class = RestaurantSerializer
-
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [perms.IsOwner]
 
     @action(methods=['get'], url_path='foods', detail=True)
     def get_all_foods(self, request, pk):
