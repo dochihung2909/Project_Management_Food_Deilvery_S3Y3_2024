@@ -159,6 +159,19 @@ class RestaurantSerializer(ModelSerializer):
                   'created_date', 'updated_date', 'active', 'foods']
 
 
+class OwnerRestaurantSerializer(RestaurantSerializer):
+    employees = serializers.SerializerMethodField('get_employees')
+
+    def get_employees(self, restaurant):
+        emls = Employee.objects.filter(restaurant=restaurant)
+
+        return EmployeeSerializer(emls, many=True).data
+
+    class Meta(RestaurantSerializer.Meta):
+        # Sử dụng các field cũ và thêm field mới
+        fields = RestaurantSerializer.Meta.fields + ['employees']
+
+
 class NotificationSerializer(ModelSerializer):
     class Meta:
         model = Notification

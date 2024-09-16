@@ -30,6 +30,7 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
     def get_permissions(self):
         if self.action in ['register', 'login']:
             return [permissions.AllowAny()]
+        return super().get_permissions()
 
     @action(methods=['post'], url_path='register', detail=False)
     def register(self, request):
@@ -144,11 +145,13 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
 
     @action(methods=['get'], url_path='current-user', detail=False)
     def get_current_user(self, request):
-        user = request.user
-        if not user.is_anonymous:
-            serializer = UserSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({'error': 'Something Wrong!'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = request.user
+            if not user.is_anonymous:
+                serializer = UserSerializer(user)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        except request.NoneType:
+            return Response({'error': 'Something Wrong!'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['patch'], url_path='current-user/update', detail=False)
     def update_user(self, request, pk):
@@ -267,6 +270,16 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
         notifications = user.notification_set.filter(active=True).all()
         serializer = NotificationSerializer(notifications, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['get'], url_path='current-user/restaurant', detail=False)
+    def get_restaurant(self, request):
+        try:
+            user = request.user
+            restaurant = Restaurant.objects.get(owner=user)
+
+            return Response(OwnerRestaurantSerializer(restaurant).data, status=status.HTTP_200_OK)
+        except Restaurant.DoesNotExist:
+            return Response({'error': 'user does not have restaurant'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['post'], url_path='current-user/restaurants', detail=False)
     def add_restaurant(self, request):
@@ -414,7 +427,16 @@ class FoodViewSet(viewsets.ViewSet,
     queryset = Food.objects.filter(active=True)
     serializer_class = FoodSerializer
 
-    # permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
+
+    # def update(self, request, *args, **kwargs):
+    #
+    #     is_delete = request.data.get('is_delete')
+    #
+    #     if is_delete:
+    #         return Response({'eroor': "Delete"}, status=status.HTTP_400_BAD_REQUEST)
+    #
+    #     return Response({'eroor': "EOREOR"}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['get'], url_path='ratings', detail=True)
     def get_all_ratings(self, request, pk):
