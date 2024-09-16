@@ -6,7 +6,7 @@ import { useUser } from '../../contexts/UserContext'
 
 export default function LoginPage() {
 
-    let regexPhoneNumber = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/ 
+    let regexPhoneNumber = /(03|05|07|08|09|01[2|6|8|9])+([0-9]{8})\b/gm
 
     const [isError, setIsError] = useState(false)
 
@@ -14,8 +14,7 @@ export default function LoginPage() {
 
     const { login } = useUser()
 
-    const BASE_URL = import.meta.env.VITE_BASE_URL
- 
+    const BASE_URL = import.meta.env.VITE_BASE_URL 
 
     const handleSubmitRegisterForm = async (e) => {
         e.preventDefault()  
@@ -31,7 +30,7 @@ export default function LoginPage() {
         }
 
         // fetch check login
-        await fetch(BASE_URL + 'users/login/', {
+        const response = await fetch(BASE_URL + 'users/login/', {
             method: 'POST',
             headers: {
                 'Content-type': 'application/json'
@@ -41,18 +40,26 @@ export default function LoginPage() {
                 password: password
             })
         })
-        .then(response => response.json())
-        .then(data => { 
+
+        if (response.status === 200) { 
+            const data = await response.json()
             if (data) {
                 login(data.user)  
                 Cookies.set('access_token', data.access_token, { expires: 7 })
                 Cookies.set('refresh_token', data.refresh_token, { expires: 7 })
-                setTimeout(() => {
-                    navigate('/')
-                }, 100)
+                if (data.user.role == 2 || data.user.role == 3)  {
+                    setTimeout(() => {
+                        navigate('/restaurant-management')
+                    }) 
+                } else {
+                    setTimeout(() => {
+                        navigate('/')
+                    }) 
+                } 
             }
-        })
-        
+        } else {
+            setIsError(true)  
+        }
     }
 
   return (

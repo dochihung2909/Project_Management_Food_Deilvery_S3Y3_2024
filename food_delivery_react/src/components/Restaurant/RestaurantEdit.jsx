@@ -1,49 +1,47 @@
 import React, { useEffect, useState } from 'react'
 import SideBar from './SideBar'
 import BoardView from './BoardView'
-import { useParams } from 'react-router-dom';
-
+import { useNavigate, useParams } from 'react-router-dom'; 
+import { useUser } from '../../contexts/UserContext';
+import Cookies from 'js-cookie';
 
 
 const RestaurantEdit = () => {
-    const [restaurant, setRestaurant] = useState({});
-    const [employee, setEmployee] = useState([]);
-    const BASE_URL = import.meta.env.VITE_BASE_URL;
-    const { id } = useParams();
-    const [selecting, setSelecting] = useState();
+    const { user } = useUser()
+    const navigate = useNavigate()
 
-    useEffect(() => {
-        getEmployees();
-        getRestaurant();
-        console.log(employee)
-    }, [])
+    const [restaurant, setRestaurant] = useState({}); 
+    const BASE_URL = import.meta.env.VITE_BASE_URL; 
+    const [selecting, setSelecting] = useState('Foods');
+    const accessToken = Cookies.get('access_token')
+
+    useEffect(() => { 
+        if (user) {
+            if (user?.role == 2 || user?.role == 3) { 
+                getRestaurant(); 
+            } else {
+                navigate('/login')
+            }
+        }
+    }, [user]) 
 
     useEffect(() => {
         console.log(selecting);
     }, [selecting])
 
     const getRestaurant = async () => {
-        const response = await fetch(BASE_URL + '/restaurants/' + id, {
+        const response = await fetch(BASE_URL + 'users/current-user/restaurant', {
             method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + accessToken
+            }
         })
 
         if (response.status == 200) {
             const data = await response.json();
             setRestaurant(data);
         }
-    }
-
-    const getEmployees = async () => {
-        const response = await fetch(BASE_URL + '/restaurants/' + id + '/employees/', {
-            method: 'GET',
-        })
-
-        if (response.status == 200) {
-            const data = await response.json();
-            console.log(data)
-            setEmployee(data)
-        }
-    }
+    } 
 
     function round(value, step) {
         step || (step = 1.0);
@@ -71,7 +69,7 @@ const RestaurantEdit = () => {
                     <SideBar handleSelect={(barItem) => setSelecting(barItem)} />
                 </div>
                 <div className='w-4/5'>
-                    <BoardView foods={restaurant?.foods} employees={employee} selecting={selecting} />
+                    <BoardView getRestaurant={getRestaurant} foods={restaurant?.foods} employees={restaurant?.employees} selecting={selecting} />
                 </div>
             </div>
         </div>

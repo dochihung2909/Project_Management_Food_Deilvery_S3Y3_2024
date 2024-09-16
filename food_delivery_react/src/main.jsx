@@ -63,7 +63,7 @@ const router = createBrowserRouter([
     ]
   },
   {
-    path: "/restaurant/:id/edit",
+    path: "/restaurant-management",
     element: (
       <RestaurantEdit></RestaurantEdit>
     ),

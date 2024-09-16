@@ -1,21 +1,45 @@
-import React, { useState } from 'react'
-import Dialog from '../Restaurant/Dialog'
+import { Button, Dialog, DialogBody, DialogFooter, DialogHeader } from '@material-tailwind/react';
+import React, { useState } from 'react' 
 
 const EmployeeManageCard = ({ employee }) => {
     const [isOpen, setIsOpen] = useState(false);
+
     const editClick = () => {
         setIsOpen(true);
         console.log(employee)
     };
+
+    const handleConfirmEditEmployee = () => {
+        
+    }
     const deleteClick = () => {
         setIsOpen(true);
     }
     return (
-        <>
-            <Dialog
-                msg={`Bạn có muốn xóa nhân viên ${employee?.first_name} ${employee?.last_name}` || employee?.username}
-                isOpen={isOpen}
-            />
+        <> 
+            <Dialog open={isOpen} handler={() => setIsOpen(!isOpen)}>
+                <DialogHeader>Its a simple dialog.</DialogHeader>
+                <DialogBody>
+                    The key to more success is to have a lot of pillows. Put it this way,
+                    it took me twenty five years to get these plants, twenty five years of
+                    blood sweat and tears, and I&apos;m never giving up, I&apos;m just
+                    getting started. I&apos;m up to something. Fan luv.
+                </DialogBody>
+                <DialogFooter>
+                    <Button
+                        variant="text"
+                        color="red"
+                        onClick={() => setIsOpen(false)}
+                        className="mr-1"
+                    >
+                        <span>Cancel</span>
+                    </Button>
+                    <Button variant="gradient" color="green" onClick={handleConfirmEditEmployee}>
+                        <span>Confirm</span>
+                    </Button>
+                </DialogFooter>
+            </Dialog>
+
             <div className='w-full flex px-2 space-x-4 items-center border-b border-gray-300 py-2 hover:bg-gray-200'>
                 <div className='flex-2'>
                     <img className='w-10 h-10 rounded-full' src={employee?.image} />
