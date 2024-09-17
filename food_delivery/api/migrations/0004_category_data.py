@@ -27,11 +27,8 @@ def initial_category_data(apps, schema_editor):
 
     # Danh mục món ăn quán Lẩu
     FoodCategory.objects.create(name='Nước lẩu')
-    # FoodCategory.objects.create(name='Thịt')
-    # FoodCategory.objects.create(name='Hải sản')
 
     # Danh mục món ăn quán Chay
-    # FoodCategory.objects.create(name='Rau củ')
     FoodCategory.objects.create(name='Canh')
     FoodCategory.objects.create(name='Thịt chay')
 

@@ -454,18 +454,19 @@ class FoodViewSet(viewsets.ViewSet,
         if is_delete:
             instance.active = False
             instance.save()
-            return Response({'message', 'delete successful.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message', 'delete successful.'}, status=status.HTTP_200_OK)
 
         allowed_fields = ['name', 'price', 'discount', 'description', 'category', 'image']
         invalid_fields = [field for field in request.data.keys() if field not in allowed_fields]
         if invalid_fields:
-            return Response({'error', f'Invalid fields: {", ".join(invalid_fields)}'})
+            return Response({'error': f'Invalid fields: {", ".join(invalid_fields)}'})
 
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
+        if serializer.is_valid(raise_exception=True):
+            self.perform_update(serializer)
+            return Response(serializer.data, status=status.HTTP_200_OK)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'error': 'Failed to update'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['get'], url_path='ratings', detail=True)
     def get_all_ratings(self, request, pk):

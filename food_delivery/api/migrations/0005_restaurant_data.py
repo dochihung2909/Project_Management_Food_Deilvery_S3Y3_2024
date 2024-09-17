@@ -12,14 +12,15 @@ def initial_restaurant_data(apps, schema_editor):
 
     restaurants = [
         {'name': 'Nhà hàng Nướng Ngon', 'address': '123 Võ Văn Ngân, TP.HCM', 'phone_number': '0901234567',
-         'category_id': 1, 'owner_id': 5},
-        {'name': 'Lẩu Đại Hỷ', 'address': '456 Tô Vĩnh Diện, Hà Nội', 'phone_number': '0912345678', 'category_id': 2, 'owner_id': 6},
+         'category_id': 1, 'owner_id': 5, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726593330/NhaHangNuong.png'},
+        {'name': 'Lẩu Đại Hỷ', 'address': '456 Tô Vĩnh Diện, Hà Nội', 'phone_number': '0912345678', 'category_id': 2,
+         'owner_id': 6, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726593361/NhaHangLau.png'},
         {'name': 'Chay Thanh Tịnh', 'address': '789 Đường Cây Keo, Đà Nẵng', 'phone_number': '0923456789',
-         'category_id': 3, 'owner_id': 7},
+         'category_id': 3, 'owner_id': 7, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726593437/NhaHangChay.jpg'},
         {'name': 'Hải sản Biển Xanh', 'address': '321 Bác Ái, Nha Trang', 'phone_number': '0934567890',
-         'category_id': 4, 'owner_id': 8},
+         'category_id': 4, 'owner_id': 8, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726593502/NhaHangHaiSan.jpg'},
         {'name': 'Đồ ăn nhanh 24h', 'address': '654 Kha Vạn Cân, Cần Thơ', 'phone_number': '0945678901',
-         'category_id': 5, 'owner_id': 9}
+         'category_id': 5, 'owner_id': 9, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726593507/NhaHangDoAnNhanh.png'}
     ]
 
     for restaurant in restaurants:
@@ -30,7 +31,7 @@ def initial_restaurant_data(apps, schema_editor):
             category_id=restaurant['category_id'],
             owner_id=restaurant['owner_id'],
             rating=0.0,
-            image='https://res.cloudinary.com/dhitdivyi/image/upload/v1725474107/m82nkwmtg5x7hh2uny7q.jpg',
+            image=restaurant['image'],
         )
 
 
