@@ -24,6 +24,7 @@ import PaymentPage from './components/Payment/PaymentPage.jsx';
 import RestaurantEdit from './components/Restaurant/RestaurantEdit.jsx';
 import PaymentSuccess from './components/Payment/PaymentSuccess.jsx';
 import OrderHistory from './components/OrderHistory/OrderHistory.jsx';
+import User from './components/User/User.jsx';
 
 
 const router = createBrowserRouter([
@@ -58,6 +59,12 @@ const router = createBrowserRouter([
         path: "/my-orders",
         element: (
           <OrderHistory></OrderHistory>
+        ),
+      },
+      {
+        path: "/user",
+        element: (
+          <User></User>
         ),
       },
     ]

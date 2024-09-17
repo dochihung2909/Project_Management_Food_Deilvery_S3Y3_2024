@@ -142,7 +142,10 @@ export default function Header() {
                     <div ref={userMenuRef}  className='absolute w-[180px] right-0 top-[100%] mt-2 bg-white border-2 rounded-xl p-4 '>
                       <ul className='flex flex-wrap w-full'>
                         <li className=' w-full'>
-                          <Button className='text-left  w-full py-2 bg-transparent px-0 text-black hover:shadow-transparent shadow-transparent'>
+                          <Button onClick={() => {
+                            navigate('/user')
+                            setOpenUserMenu(false)
+                          }} className='text-left  w-full py-2 bg-transparent px-0 text-black hover:shadow-transparent shadow-transparent'>
                             Thông tin cá nhân
                           </Button>
                         </li>  
@@ -155,7 +158,10 @@ export default function Header() {
                         </li> 
                         <li className='h-[2px] w-full bg-gray-600 bg-opacity-40'></li>
                         <li className=' w-full'>
-                          <Button onClick={logout} className='text-left w-full py-2 bg-transparent px-0 text-red-500 font-semibold text-sm hover:shadow-transparent shadow-transparent'>
+                          <Button onClick={() => {
+                            logout() 
+                            setOpenUserMenu(false)
+                          }} className='text-left w-full py-2 bg-transparent px-0 text-red-500 font-semibold text-sm hover:shadow-transparent shadow-transparent'>
                             Đăng xuất 
                           </Button>
                         </li> 

@@ -13,8 +13,7 @@ export const UserProvider = ({ children }) => {
      
 
     const handleAuthenticateUser = async () => {
-        const refreshToken = Cookies.get('refresh_token') 
-        console.log(accessToken)
+        const refreshToken = Cookies.get('refresh_token')  
  
         const response = await fetch(BASE_URL + 'users/current-user/', {
             method: 'GET',
@@ -55,8 +54,7 @@ export const UserProvider = ({ children }) => {
     }
 
     useLayoutEffect(() => {
-        handleAuthenticateUser() 
-
+        handleAuthenticateUser()  
         console.log(accessToken)
     }, []) 
 
