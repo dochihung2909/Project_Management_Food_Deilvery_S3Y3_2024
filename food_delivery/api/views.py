@@ -50,7 +50,7 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
 
         phone_number_pattern = r'^(\\+84|84|0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5|8|9]|9[0-4|6-9])[0-9]{7}$'
         no_space_pattern = r'^\S+$'
-        password_pattern = r'[A-Za-z0-9@#$%^&+=]{8,}'
+        password_pattern = r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$'
 
         isUsername = User.objects.filter(username=username).exists()
         isPhoneNumber = re.match(phone_number_pattern, phone_number)
@@ -154,7 +154,7 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
             return Response({'error': 'Something Wrong!'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['patch'], url_path='current-user/update', detail=False)
-    def update_user(self, request, pk):
+    def update_user(self, request):
         user = request.user
         first_name = request.data.get('first_name')
         last_name = request.data.get('last_name')
@@ -162,14 +162,14 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
         avatar = request.data.get('avatar')
 
         update_data = {}
-        if first_name is not None:
+        if first_name:
             update_data['first_name'] = first_name
-        if last_name is not None:
-            update_data['first_name'] = last_name
-        if phone_number is not None:
-            update_data['first_name'] = phone_number
-        if avatar is not None:
-            update_data['first_name'] = avatar
+        if last_name:
+            update_data['last_name'] = last_name
+        if phone_number:
+            update_data['phone_number'] = phone_number
+        if avatar:
+            update_data['avatar'] = avatar
 
         serializer = UserSerializer(user, data=update_data, partial=True)
         if serializer.is_valid():
@@ -199,7 +199,7 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
             return Response(
                 {'error': 'New password must different old password!'},
                 status=status.HTTP_400_BAD_REQUEST)
-        password_pattern = r'[A-Za-z0-9@#$%^&+=]{8,}'
+        password_pattern = r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$'
         isPassword = re.fullmatch(password_pattern, new_password)
         if not isPassword:
             return Response(
@@ -502,7 +502,7 @@ class EmployeeViewSet(viewsets.ViewSet,
 
         phone_number_pattern = r'^(\\+84|84|0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5|8|9]|9[0-4|6-9])[0-9]{7}$'
         no_space_pattern = r'^\S+$'
-        password_pattern = r'[A-Za-z0-9@#$%^&+=]{8,}'
+        password_pattern = r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$'
 
         isUsername = User.objects.filter(username=username).exists()
         isPhoneNumber = re.match(phone_number_pattern, phone_number)

@@ -11,6 +11,12 @@ class UserSerializer(ModelSerializer):
     #
     #     return rep
 
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['avatar'] = instance.avatar.url
+
+        return rep
+
     def get_avatar(self, user):
         if user.avatar:
             request = self.context.get('request')
