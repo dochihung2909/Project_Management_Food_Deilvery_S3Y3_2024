@@ -69,7 +69,7 @@ const RestaurantEdit = () => {
                     <SideBar handleSelect={(barItem) => setSelecting(barItem)} />
                 </div>
                 <div className='w-4/5'>
-                    <BoardView getRestaurant={getRestaurant} foods={restaurant?.foods} employees={restaurant?.employees} selecting={selecting} />
+                    <BoardView restaurant={restaurant} getRestaurant={getRestaurant} foods={restaurant?.foods} employees={restaurant?.employees} selecting={selecting} />
                 </div>
             </div>
         </div>
