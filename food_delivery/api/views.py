@@ -345,6 +345,15 @@ class RestaurantViewSet(viewsets.ViewSet,
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(methods=['get'], url_path='payments', detail=True)
+    def get_all_payments(self, request, pk):
+        restaurant = self.get_object()
+        payments = Payment.objects.filter(cart__restaurant=restaurant).order_by('-created_date')
+
+        serializer = PaymentSerializer(payments, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     @action(methods=['post'], url_path='food', detail=True)
     def add_food(self, request, pk):
         required_fields = ['name', 'price', 'discount', 'description', 'image', 'category']
@@ -427,7 +436,7 @@ class FoodViewSet(viewsets.ViewSet,
     queryset = Food.objects.filter(active=True)
     serializer_class = FoodSerializer
 
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
     # def update(self, request, *args, **kwargs):
     #
@@ -849,6 +858,22 @@ class PaymentViewSet(viewsets.ViewSet,
     serializer_class = PaymentSerializer
 
     # permission_classes = [permissions.IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        payment = self.get_object()
+
+        payment_status = request.data.get('status')
+        is_delete = request.data.get('is_delete')
+        if is_delete:
+            return Response({'DELETE'}, status=status.HTTP_200_OK)
+
+        if payment_status:
+            payment.status = PaymentStatus(int(payment_status))
+            payment.save()
+            return Response(PaymentSerializer(payment).data, status=status.HTTP_200_OK)
+
+        return Response({'Hello'}, status=status.HTTP_200_OK)
+
 
     @action(methods=['post'], url_path='ratings', detail=True)
     def add_rating(self, request, pk):
