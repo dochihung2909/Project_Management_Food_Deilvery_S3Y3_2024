@@ -1,8 +1,9 @@
 import { Button, Dialog, DialogBody, DialogFooter, DialogHeader } from '@material-tailwind/react';
-import React, { useState } from 'react' 
+import React, { useState } from 'react'
 
 const EmployeeManageCard = ({ employee }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [isOpenDelete, setIsOpenDelete] = useState(false);
 
     const editClick = () => {
         setIsOpen(true);
@@ -10,13 +11,13 @@ const EmployeeManageCard = ({ employee }) => {
     };
 
     const handleConfirmEditEmployee = () => {
-        
+
     }
     const deleteClick = () => {
         setIsOpen(true);
     }
     return (
-        <> 
+        <>
             <Dialog open={isOpen} handler={() => setIsOpen(!isOpen)}>
                 <DialogHeader>Its a simple dialog.</DialogHeader>
                 <DialogBody>
@@ -58,19 +59,19 @@ const EmployeeManageCard = ({ employee }) => {
                 </div>
                 <div className='space-x-2'>
                     <button
-                        onClick={editClick}
+                        onClick={() => setIsOpen(true)}
                         className='bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md'
                     >
                         Sửa
                     </button>
                     <button
-                        onClick={deleteClick}
+                        onClick={() => setIsOpenDelete(true)}
                         className='bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md'
                     >
                         Xóa
                     </button>
                 </div>
-            </div>
+            </div >
         </>
     )
 }
