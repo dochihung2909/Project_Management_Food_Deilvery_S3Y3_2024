@@ -1,5 +1,6 @@
 import React from 'react'
 import { MdFastfood, MdOutlineAddTask, MdPeople } from 'react-icons/md'
+import { FaCartArrowDown } from "react-icons/fa";
 
 const linkData = [
     {
@@ -8,9 +9,9 @@ const linkData = [
         icon: <MdFastfood />
     },
     {
-        label: "Employees",
-        link: "employees",
-        icon: <MdPeople />
+        label: "Orders",
+        link: "orders",
+        icon: <FaCartArrowDown />
     },
 ]
 

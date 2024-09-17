@@ -41,7 +41,7 @@ const RestaurantEdit = () => {
             const data = await response.json();
             setRestaurant(data);
         }
-    } 
+    }  
 
     function round(value, step) {
         step || (step = 1.0);
@@ -69,7 +69,7 @@ const RestaurantEdit = () => {
                     <SideBar handleSelect={(barItem) => setSelecting(barItem)} />
                 </div>
                 <div className='w-4/5'>
-                    <BoardView restaurant={restaurant} getRestaurant={getRestaurant} foods={restaurant?.foods} employees={restaurant?.employees} selecting={selecting} />
+                    <BoardView restaurant={restaurant} getRestaurant={getRestaurant} foods={restaurant?.foods} selecting={selecting} />
                 </div>
             </div>
         </div>
