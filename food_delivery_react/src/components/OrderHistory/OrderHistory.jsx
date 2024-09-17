@@ -35,6 +35,27 @@ export default function OrderHistory() {
         handleGetPayments() 
     }, [user])
 
+    const handleCompleteOrder = async (orderId) => {
+        const response = await fetch(BASE_URL + `payments/${orderId}/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                status: 3
+            })
+        })
+
+        if (response.status == 200) {
+            const data = await response.json() 
+
+            if (data) {
+                await handleGetPayments() 
+            }
+
+        }
+    }
+
   return (
     <div className='container mx-auto mt-10'>
         <h1 className='text-4xl font-semibold'>Lịch sử mua hàng</h1>
@@ -55,9 +76,11 @@ export default function OrderHistory() {
                                 </p> 
                             </div>
                         </div>
-                        <div className='flex justify-end mt-2'>
-                            <Button className='bg-primary'>Đã nhận hàng</Button> 
-                        </div>
+                        {payment.status != 'Completed' && 
+                            <div className='flex justify-end mt-2'>
+                                <Button onClick={() => handleCompleteOrder(payment?.id)} className='bg-primary'>Đã nhận hàng</Button> 
+                            </div> 
+                        }
                     </div>)
               
             })}

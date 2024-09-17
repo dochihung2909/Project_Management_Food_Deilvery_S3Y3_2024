@@ -9,7 +9,7 @@ export default function OrderCard({restaurant, cart, method, status}) {
     const navigate = useNavigate()
 
     const handleNavigateToRestaurant = () => {
-        navigate(`restaurant/${restaurant.id}/`, {state: {
+        navigate(`/restaurant/${restaurant.id}/`, {state: {
             restaurant: restaurant,
         }})
     }
