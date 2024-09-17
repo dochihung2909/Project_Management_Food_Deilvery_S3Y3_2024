@@ -149,6 +149,17 @@ export default function Header() {
                             Thông tin cá nhân
                           </Button>
                         </li>  
+                        {user?.role == 2 && 
+                        
+                          <li className=' w-full'>
+                            <Button onClick={() => {
+                              navigate('/restaurant-management')
+                              setOpenUserMenu(false)
+                            }} className='text-left  w-full py-2 bg-transparent px-0 text-black hover:shadow-transparent shadow-transparent'>
+                              Quản lý nhà hàng
+                            </Button>
+                          </li>  
+                        } 
                         <li className=' w-full'>
                           <NavLink to='/my-orders'>
                             <Button className='text-left  w-full py-2 bg-transparent px-0 text-black hover:shadow-transparent shadow-transparent'>

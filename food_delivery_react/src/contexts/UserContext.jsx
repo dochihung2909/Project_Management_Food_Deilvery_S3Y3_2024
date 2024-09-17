@@ -55,7 +55,7 @@ export const UserProvider = ({ children }) => {
 
     useLayoutEffect(() => {
         handleAuthenticateUser()  
-        console.log(accessToken)
+        console.log(user)
     }, []) 
 
 
