@@ -104,6 +104,7 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
         username = request.data.get('username')
         password = request.data.get('password')
         try:
+            serializer = None
             user = User.objects.get(username=username)
             if user:
                 if not user.check_password(password):
@@ -114,7 +115,8 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
                     return Response(
                         {'error': 'The account has been locked!'},
                         status=status.HTTP_400_BAD_REQUEST)
-                if user.role_id == 0 or user.role_id == 1 or user.role_id == 2:
+
+                if user.role_id == 0 or user.role_id == 1 or user.role_id == 2 or user.is_superuser:
                     serializer = UserSerializer(user)
                 elif user.role_id == 3:
                     employee = Employee.objects.get(user_ptr=user)
@@ -128,8 +130,6 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
                     'client_id': os.getenv('CLIENT_ID_OAUTH'),
                     'client_secret': os.getenv('CLIENT_SECRET_OAUTH')
                 }
-
-                print(token_data)
 
                 token_response = requests.post(token_url, data=token_data)
                 if token_response.status_code == 200:
