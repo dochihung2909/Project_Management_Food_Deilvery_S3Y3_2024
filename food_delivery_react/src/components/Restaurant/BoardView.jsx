@@ -20,6 +20,8 @@ const BoardView = ({restaurant, foods = [], employees = [], selecting, getRestau
     })
 
     const [foodImage, setFoodImage] = useState({}) 
+
+    const [foodImageURL, setFoodImageURL] = useState('')
  
     const [foodCategories, setFoodCategories] = useState([])
 
@@ -50,6 +52,7 @@ const BoardView = ({restaurant, foods = [], employees = [], selecting, getRestau
         let file = e.target.files[0]
         if (file) {
             setFoodImage(e.target.files[0])  
+            setFoodImageURL(URL.createObjectURL(file))
         }
 
     }
@@ -101,7 +104,7 @@ const BoardView = ({restaurant, foods = [], employees = [], selecting, getRestau
     const handleOpenFoodDialog = () => {
         setOpenFoodCreate(!openFoodCreate)
     }
-
+ 
 
     return (
         <>
@@ -118,7 +121,7 @@ const BoardView = ({restaurant, foods = [], employees = [], selecting, getRestau
                                     </p>
                                     <input name="discount" onChange={handleGetFoodImage} type="file" accept="image/*"/>  
                                 </div>
-                                <img className='h-40' src={URL.createObjectURL(foodImage)} />
+                                <img className='h-40' src={foodImageURL} />
                                 {/* {passwordError.id == 2 && <p className="text-red-500 text-sm mx-2">{passwordError.msg}</p>} */}
                             </div> 
                             <div className="mb-4">
