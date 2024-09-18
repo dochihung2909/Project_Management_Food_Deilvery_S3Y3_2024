@@ -25,7 +25,7 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
     serializer_class = UserSerializer
     pagination_class = UserPaginator
 
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
     def get_permissions(self):
         if self.action in ['register', 'login']:
@@ -103,9 +103,11 @@ class UserViewSet(viewsets.ViewSet, generics.ListAPIView):
 
         username = request.data.get('username')
         password = request.data.get('password')
+        print(username, password)
         try:
             serializer = None
             user = User.objects.get(username=username)
+            print(user)
             if user:
                 if not user.check_password(password):
                     return Response(
@@ -438,14 +440,33 @@ class FoodViewSet(viewsets.ViewSet,
 
     # permission_classes = [permissions.IsAuthenticated]
 
-    # def update(self, request, *args, **kwargs):
-    #
-    #     is_delete = request.data.get('is_delete')
-    #
-    #     if is_delete:
-    #         return Response({'eroor': "Delete"}, status=status.HTTP_400_BAD_REQUEST)
-    #
-    #     return Response({'eroor': "EOREOR"}, status=status.HTTP_400_BAD_REQUEST)
+    def get_permissions(self):
+        if self.action in ['update']:
+            return [perms.RestaurantOwner, perms.RestaurantEmployee]
+
+        return super().get_permissions()
+
+    def update(self, request, *args, **kwargs):
+        partial = True
+        instance = self.get_object()
+        is_delete = request.data.get('is_delete')
+
+        if is_delete:
+            instance.active = False
+            instance.save()
+            return Response({'message', 'delete successful.'}, status=status.HTTP_200_OK)
+
+        allowed_fields = ['name', 'price', 'discount', 'description', 'category', 'image']
+        invalid_fields = [field for field in request.data.keys() if field not in allowed_fields]
+        if invalid_fields:
+            return Response({'error': f'Invalid fields: {", ".join(invalid_fields)}'})
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        if serializer.is_valid(raise_exception=True):
+            self.perform_update(serializer)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response({'error': 'Failed to update'}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['get'], url_path='ratings', detail=True)
     def get_all_ratings(self, request, pk):

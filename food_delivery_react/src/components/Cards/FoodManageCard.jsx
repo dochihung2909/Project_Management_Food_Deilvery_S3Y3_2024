@@ -1,25 +1,66 @@
-import React, { useEffect, useState } from 'react' 
+import React, { useEffect, useState } from 'react'
 import { formatCurrencyVND } from '../../utils/currency';
-import { Button, Dialog, DialogBody, DialogFooter, DialogHeader, Option, Select } from '@material-tailwind/react';
+import { Button, Dialog, DialogBody, DialogFooter, DialogHeader, Input, Option, Select } from '@material-tailwind/react';
 import Cookies from 'js-cookie';
 
-const FoodManageCard = ({ food, getRestaurant }) => {
+const FoodManageCard = ({ food, getRestaurant, foodCategories }) => {
     const BASE_URL = import.meta.env.VITE_BASE_URL;
-    const [isOpen, setIsOpen] = useState(false);  
-    const [isOpenDelete, setIsOpenDelete] = useState(false); 
+    const [isOpen, setIsOpen] = useState(false);
+    const [isOpenDelete, setIsOpenDelete] = useState(false);
+    const [foodImage, setFoodImage] = useState({})
+    const [foodImageURL, setFoodImageURL] = useState(food?.image)
+    const [formFood, setFormFood] = useState({
+        name: '',
+        price: '',
+        discount: '',
+        description: '',
+        category: '',
+    })
+
+    useEffect(() => {
+        setFormFood({
+            name: food?.name,
+            price: food?.price,
+            discount: food?.discount,
+            description: food?.description,
+            category: food?.category,
+        })
+    }, [food])
+
+    useEffect(() => {
+        console.log(foodCategories);
+    }, [])
 
     const accessToken = Cookies.get('access_token');
 
-    const [foodInfo, setFoodInfo] = useState({
-        name: food.name,
-        price: food.price,
-        discount: food.discount,
-        category: food.category,
-        description: food.description,
-        image: food.image 
-    })
-  
-    const handleEditFoodConfirm = async () => { 
+    const handleEditFoodConfirm = async () => {
+        if (handleValidateFoodForm()) {
+            console.log(formFood)
+
+            let form = new FormData()
+            form.append('name', formFood.name)
+            form.append('price', formFood.price)
+            form.append('discount', formFood.discount)
+            form.append('image', foodImage)
+            form.append('description', formFood.description)
+            form.append('category', formFood.category)
+
+            const response = await fetch(BASE_URL + `foods/${food.id}/`, {
+                method: 'PATCH',
+                body: form
+            })
+
+            if (response.status == 200) {
+                const data = await response.json()
+                if (data) {
+                    getRestaurant()
+                    setIsOpen(false)
+                }
+            }
+        }
+    }
+
+    const handleDeleteFoodConfirm = async () => {
         const response = await fetch(BASE_URL + `foods/${food.id}/`, {
             method: 'PATCH',
             headers: {
@@ -27,68 +68,99 @@ const FoodManageCard = ({ food, getRestaurant }) => {
                 'Authorization': `Bearer ${accessToken}`
             },
             body: JSON.stringify({
-                name: foodInfo.name
+                is_delete: true,
             })
         })
 
         if (response.status == 200) {
-            const data = await response.json() 
+            const data = await response.json()
+            console.log(data)
             if (data) {
-                getRestaurant() 
-                setIsOpen(false)
+                getRestaurant()
+                setIsOpenDelete(false)
             }
         }
-    } 
+    }
 
-    useEffect(() => {
-        console.log(foodInfo)
-    }, [foodInfo])
+    const handleValidateFoodForm = () => {
+        return true
+    }
 
-    const handleDeleteFoodConfirm = async () => {
-        
+    const handleInputFoodChange = (e) => {
+        const { name, value } = e.target;
+        setFormFood({
+            ...formFood,
+            [name]: value
+        });
+    };
+
+    const handleGetFoodImage = (e) => {
+        let file = e.target.files[0]
+        if (file) {
+            setFoodImage(e.target.files[0])
+            setFoodImageURL(URL.createObjectURL(file))
+        }
+    }
+
+    const handleOpenFoodDialog = () => {
+        setIsOpen(false)
     }
 
     return (
-        <> 
+        <>
             <Dialog open={isOpen} handler={() => setIsOpen(!isOpen)}>
-                <DialogHeader>Sửa thông tin món ăn</DialogHeader>
+                <DialogHeader>Thông tin món ăn</DialogHeader>
                 <DialogBody>
-                    <div className='flex gap-2'>
-                        <label htmlFor='foodName'>Tên món ăn</label>
-                        <input name='foodName' value={foodInfo.name} onChange={(e) => {
-                            setFoodInfo((prevFoodInfo) => {
-                                return {...prevFoodInfo, name: e.target.value}
-                            })
-                        }} id='foodName' type='text' placeholder='Tên món ăn'></input>
+
+                    <div className="my-4 flex justify-center">
+                        <div>
+                            <p>
+                                Chọn ảnh món ăn
+                            </p>
+                            <input name="discount" onChange={handleGetFoodImage} type="file" accept="image/*" />
+                        </div>
+                        <img className='h-40' src={foodImageURL} />
+                        {/* {passwordError.id == 2 && <p className="text-red-500 text-sm mx-2">{passwordError.msg}</p>} */}
                     </div>
-                    {/* <div className='flex gap-2'>
-                        <label htmlFor='foodName'>Giá</label>
-                        <input id='foodName' type='text' placeholder='Tên món ăn'></input>
-                    </div> */}
-                    <div className="flex">
-                        <Select label="Select Version">
-                            <Option>Material Tailwind HTML</Option>
-                            <Option>Material Tailwind React</Option>
-                            <Option>Material Tailwind Vue</Option>
-                            <Option>Material Tailwind Angular</Option>
-                            <Option>Material Tailwind Svelte</Option>
+                    <div className="mb-4">
+                        <Input onBlur={handleValidateFoodForm} name="name" onChange={handleInputFoodChange} type="text" label="Tên món ăn" value={formFood?.name} />
+                        {/* {passwordError.id == 0 && <p className="text-red-500 text-sm mx-2">{passwordError.msg}</p>} */}
+                    </div>
+                    <div className="my-4">
+                        <Input onBlur={handleValidateFoodForm} name="description" onChange={handleInputFoodChange} type="text" label="Thông tin món ăn" value={formFood?.description} />
+                        {/* {passwordError.id == 1 && <p className="text-red-500 text-sm mx-2">{passwordError.msg}</p>} */}
+                    </div>
+                    <div className="my-4">
+                        <Input onBlur={handleValidateFoodForm} name="price" onChange={handleInputFoodChange} type="number" label="Giá món ăn" value={formFood?.price} />
+                        {/* {passwordError.id == 2 && <p className="text-red-500 text-sm mx-2">{passwordError.msg}</p>} */}
+                    </div>
+                    <div className="my-4">
+                        <Input onBlur={handleValidateFoodForm} name="discount" onChange={handleInputFoodChange} type="number" label="Giảm giá món ăn" value={formFood?.discount} />
+                        {/* {passwordError.id == 2 && <p className="text-red-500 text-sm mx-2">{passwordError.msg}</p>} */}
+                    </div>
+
+                    <div className='my-4'>
+                        <Select onChange={(val) => handleInputFoodChange({ target: { name: 'category', value: val } })} label="Chọn loại món ăn" value={formFood?.category}>
+                            {foodCategories.map(cate => {
+                                return <Option value={cate.id}>{cate.name}</Option>
+                            })}
                         </Select>
-                    </div>   
+                    </div>
                 </DialogBody>
                 <DialogFooter>
                     <Button
                         variant="text"
                         color="red"
-                        onClick={() => setIsOpen(false)}
+                        onClick={handleOpenFoodDialog}
                         className="mr-1"
                     >
-                        <span>Cancel</span>
+                        <span>Huỷ</span>
                     </Button>
                     <Button variant="gradient" color="green" onClick={handleEditFoodConfirm}>
-                        <span>Confirm</span>
+                        <span>Xác nhận</span>
                     </Button>
                 </DialogFooter>
-            </Dialog>
+            </Dialog >
 
             <Dialog size='sm' open={isOpenDelete} handler={() => setIsOpenDelete(!isOpenDelete)}>
                 <DialogHeader>Bạn có muốn xoá món ăn này?</DialogHeader>

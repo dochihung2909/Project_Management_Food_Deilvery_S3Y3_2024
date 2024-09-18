@@ -16,97 +16,97 @@ def initial_food_data(apps, schema_editor):
         # Nhà hàng Nướng Ngon: 1
         # Danh mục 'Rau củ'
         {'name': 'Đậu bắp nướng', 'price': 50000.0, 'description': 'Đậu bắp tươi nướng muối ớt',
-         'category': 1, 'restaurant_id': 1},
+         'category': 1, 'restaurant_id': 1, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726593707/DauBap.jpg'},
         {'name': 'Ngô nướng', 'price': 40000.0, 'description': 'Ngô ngọt nướng bơ tỏi', 'category': 1,
-         'restaurant_id': 1},
+         'restaurant_id': 1, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726593715/Ngo.jpg'},
 
         # Danh mục 'Hải sản'
         {'name': 'Tôm nướng', 'price': 100000.0, 'description': 'Tôm nướng muối ớt', 'category': 2,
-         'restaurant_id': 1},
+         'restaurant_id': 1, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726593830/TomNuong.jpg'},
         {'name': 'Mực nướng', 'price': 120000.0, 'description': 'Mực nướng sa tế', 'category': 2,
-         'restaurant_id': 1},
+         'restaurant_id': 1, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726593863/MucNuong.jpg'},
 
         # Danh mục 'Thịt'
         {'name': 'Sườn nướng BBQ', 'price': 150000.0, 'description': 'Sườn nướng BBQ đậm đà', 'category': 3,
-         'restaurant_id': 1},
+         'restaurant_id': 1, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726593886/SuonNuong.jpg'},
         {'name': 'Bò nướng', 'price': 160000.0, 'description': 'Bò nướng tiêu xanh', 'category': 3,
-         'restaurant_id': 1},
+         'restaurant_id': 1, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726593903/BoNuong.jpg'},
 
         # Lẩu Đại Hỷ: 2
         # Món ăn cho danh mục 'Nước lẩu'
         {'name': 'Nước lẩu Thái', 'price': 120000.0, 'description': 'Nước lẩu Thái chua cay, đầy hương vị',
-         'category': 4, 'restaurant_id': 2},
+         'category': 4, 'restaurant_id': 2, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726593922/NuocLauThai.jpg'},
         {'name': 'Nước lẩu Tứ Xuyên', 'price': 130000.0, 'description': 'Nước lẩu Tứ Xuyên cay nồng, đặc trưng',
-         'category': 4, 'restaurant_id': 2},
+         'category': 4, 'restaurant_id': 2, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726593925/NuocLauTuXuyen.jpg'},
 
         # Món ăn cho danh mục 'Thịt'
         {'name': 'Sườn heo', 'price': 150000.0, 'description': 'Sườn heo tươi ngon, dùng cho lẩu',
-         'category': 3, 'restaurant_id': 2},
+         'category': 3, 'restaurant_id': 2, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726593975/SuonHeo.jpg'},
         {'name': 'Thịt bò', 'price': 160000.0, 'description': 'Thịt bò tươi, thái lát mỏng cho lẩu',
-         'category': 3, 'restaurant_id': 2},
+         'category': 3, 'restaurant_id': 2, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594003/ThitBo.jpg'},
 
         # Món ăn cho danh mục 'Hải sản'
         {'name': 'Tôm sú', 'price': 100000.0, 'description': 'Tôm sú tươi ngon, dùng cho lẩu',
-         'category': 2, 'restaurant_id': 2},
+         'category': 2, 'restaurant_id': 2, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594019/TomSu.jpg'},
         {'name': 'Mực ống', 'price': 120000.0, 'description': 'Mực ống tươi, thích hợp cho lẩu',
-         'category': 2, 'restaurant_id': 2},
+         'category': 2, 'restaurant_id': 2, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594024/MucOng.jpg'},
 
         # Chay Thanh Tịnh: 3
         # Món ăn cho danh mục 'Rau củ'
         {'name': 'Rau muống xào', 'price': 40000.0, 'description': 'Rau muống xào tỏi thơm ngon',
-         'category': 1, 'restaurant_id': 3},
+         'category': 1, 'restaurant_id': 3, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594352/RauMuongXao.jpg'},
         {'name': 'Đậu phụ xào rau củ', 'price': 45000.0, 'description': 'Đậu phụ xào với nhiều loại rau củ tươi',
-         'category': 1, 'restaurant_id': 3},
+         'category': 1, 'restaurant_id': 3, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594373/DauPhuXaoRauCu.jpg'},
 
         # Món ăn cho danh mục 'Canh'
         {'name': 'Canh bí đỏ', 'price': 50000.0, 'description': 'Canh bí đỏ nấu thanh mát', 'category': 5,
-         'restaurant_id': 3},
+         'restaurant_id': 3, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594388/CanhBiDo.jpg'},
         {'name': 'Canh chua chay', 'price': 55000.0, 'description': 'Canh chua chay với nhiều loại rau củ và nấm',
-         'category': 5, 'restaurant_id': 3},
+         'category': 5, 'restaurant_id': 3, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594404/CanhChuaChay.jpg'},
 
         # Món ăn cho danh mục 'Thịt chay'
         {'name': 'Thịt chay nướng', 'price': 60000.0, 'description': 'Thịt chay nướng đậm đà gia vị',
-         'category': 6, 'restaurant_id': 3},
+         'category': 6, 'restaurant_id': 3, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594428/ThitChayNuong.jpg'},
         {'name': 'Sườn chay xào sả ớt', 'price': 65000.0, 'description': 'Sườn chay xào sả ớt cay nồng',
-         'category': 6, 'restaurant_id': 3},
+         'category': 6, 'restaurant_id': 3, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594447/SuonChay.jpg'},
 
         # Hải sải biển xanh: 4
         # Món ăn cho danh mục 'Tôm'
         {'name': 'Tôm sú nướng', 'price': 120000.0, 'description': 'Tôm sú nướng thơm ngon', 'category': 7,
-         'restaurant_id': 4},
+         'restaurant_id': 4, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594462/TomSuNuong.jpg'},
         {'name': 'Tôm rang me', 'price': 130000.0, 'description': 'Tôm rang me chua ngọt', 'category': 7,
-         'restaurant_id': 4},
+         'restaurant_id': 4, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594465/TomRangMe.jpg'},
 
         # Món ăn cho danh mục 'Cua'
         {'name': 'Cua sốt ớt', 'price': 150000.0, 'description': 'Cua sốt ớt cay nồng', 'category': 8,
-         'restaurant_id': 4},
+         'restaurant_id': 4, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594815/CuaSotOt.jpg'},
         {'name': 'Cua rang muối', 'price': 160000.0, 'description': 'Cua rang muối thơm ngon', 'category': 8,
-         'restaurant_id': 4},
+         'restaurant_id': 4, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594827/CuaRangMuoi.jpg'},
 
         # Món ăn cho danh mục 'Cá'
         {'name': 'Cá lóc nướng', 'price': 140000.0, 'description': 'Cá lóc nướng thơm ngon', 'category': 9,
-         'restaurant_id': 4},
+         'restaurant_id': 4, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594993/CaLocNuong.jpg'},
         {'name': 'Cá chiên xù', 'price': 130000.0, 'description': 'Cá chiên xù giòn rụm', 'category': 9,
-         'restaurant_id': 4},
+         'restaurant_id': 4, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726595004/CaChienXu.jpg'},
 
         # Đồ ăn nhanh 24: 5
         # Món ăn cho danh mục 'Burger'
         {'name': 'Burger phô mai', 'price': 80000.0, 'description': 'Burger với phô mai tan chảy',
-         'category': 10, 'restaurant_id': 5},
+         'category': 10, 'restaurant_id': 5, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594962/BurgerPhoMai.jpg'},
         {'name': 'Burger bò nướng', 'price': 90000.0, 'description': 'Burger với thịt bò nướng',
-         'category': 10, 'restaurant_id': 5},
+         'category': 10, 'restaurant_id': 5, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594978/BurgerBoNuong.jpg'},
 
         # Món ăn cho danh mục 'Trà sữa'
         {'name': 'Trà sữa truyền thống', 'price': 50000.0, 'description': 'Trà sữa truyền thống ngọt ngào',
-         'category': 11, 'restaurant_id': 5},
+         'category': 11, 'restaurant_id': 5, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594910/TraSuaTruyenThong.jpg'},
         {'name': 'Trà sữa matcha', 'price': 55000.0, 'description': 'Trà sữa matcha thơm ngon',
-         'category': 11, 'restaurant_id': 5},
+         'category': 11, 'restaurant_id': 5, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594886/TraMatCha.jpg'},
 
         # Món ăn cho danh mục 'Gà rán'
         {'name': 'Gà rán giòn', 'price': 70000.0, 'description': 'Gà rán giòn rụm', 'category': 12,
-         'restaurant_id': 5},
+         'restaurant_id': 5, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594983/GaRanGion.jpg'},
         {'name': 'Gà rán mật ong', 'price': 75000.0, 'description': 'Gà rán với sốt mật ong ngọt ngào',
-         'category': 12, 'restaurant_id': 5}
+         'category': 12, 'restaurant_id': 5, 'image': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726594987/GaRanMatOng.jpg'}
     ]
 
     for food in foods:
@@ -118,7 +118,7 @@ def initial_food_data(apps, schema_editor):
             category_id=food['category'],
             rating=0,
             restaurant_id=food['restaurant_id'],
-            image='https://res.cloudinary.com/dhitdivyi/image/upload/v1725474107/m82nkwmtg5x7hh2uny7q.jpg',
+            image=food['image'],
         )
 
 

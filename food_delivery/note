@@ -2,7 +2,15 @@ Hướng dẫn chạy
 . Cài đặt môi trường ảo (Add Interpreter). Đảm bảo đã kích hoạt môi trường ảo (venv)
 . pip install -r requirements.txt
 . Tạo schema trong MySQL workbench
-. Nhập thông tin database trong file .env
+. Nhập thông tin trong file .env
+    DATABASE_NAME=''
+    DATABASE_USER=''
+    DATABASE_PASS=''
+    CLIENT_ID_OAUTH=''
+    CLIENT_SECRET_OAUTH=''
+    NAME_CLOUDINARY=''
+    KEY_CLOUDINARY=''
+    SECRET_CLOUDINARY=''
 . python manage.py migrate
 . python manage.py migrate oauth2_provider
 . python manage.py runserver
