@@ -14,20 +14,31 @@ const RestaurantEdit = () => {
     const BASE_URL = import.meta.env.VITE_BASE_URL; 
     const [selecting, setSelecting] = useState('Foods');
     const accessToken = Cookies.get('access_token')
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => { 
         if (user) {
-            if (user?.role == 2 || user?.role == 3) { 
-                getRestaurant(); 
-            } else {
-                navigate('/login')
-            }
+            setLoading(false);
         }
-    }, [user]) 
+    }, [user]);
 
     useEffect(() => {
-        console.log(selecting);
-    }, [selecting])
+        console.log(user)
+    }, [])
+
+    useEffect(() => {
+        if (!loading) { 
+            if (user) {
+                if (user.role === 2 || user.role === 3) {
+                    getRestaurant();  
+                } else {
+                    navigate('/login');  
+                }
+            } else {
+                navigate('/login'); 
+            }
+        }
+    }, [loading, user]);  
 
     const getRestaurant = async () => {
         const response = await fetch(BASE_URL + 'users/current-user/restaurant', {

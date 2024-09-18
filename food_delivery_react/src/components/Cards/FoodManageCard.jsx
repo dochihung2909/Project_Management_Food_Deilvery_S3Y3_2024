@@ -23,7 +23,7 @@ const FoodManageCard = ({ food, getRestaurant, foodCategories }) => {
             price: food?.price,
             discount: food?.discount,
             description: food?.description,
-            category: food?.category,
+            category: food?.category.id,
         })
     }, [food])
 
@@ -188,7 +188,7 @@ const FoodManageCard = ({ food, getRestaurant, foodCategories }) => {
                 </div>
                 <div className='flex-1'>
                     <p className='text-lg font-semibold'>{food?.name}</p>
-                    <p className='text-sm text-gray-600'>{food?.category}</p>
+                    <p className='text-sm text-gray-600'>{food?.category.name}</p>
                 </div>
                 <p className='text-lg font-semibold text-green-600'>{formatCurrencyVND(food?.price)}</p>
                 <div className='space-x-2'>

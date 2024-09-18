@@ -341,7 +341,7 @@ class RestaurantViewSet(viewsets.ViewSet,
 
     @action(methods=['get'], url_path='foods', detail=True)
     def get_all_foods(self, request, pk):
-        foods = self.get_object().food_set.filter(active=True).all()
+        foods = self.get_object().food_set.filter(active=True).order_by('-created_at').all()
 
         serializer = FoodSerializer(foods, many=True)
 

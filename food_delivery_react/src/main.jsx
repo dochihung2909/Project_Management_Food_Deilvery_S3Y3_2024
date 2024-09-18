@@ -88,6 +88,12 @@ const router = createBrowserRouter([
     ),
   },
   {
+    path: "/login-google",
+    element: (
+      <Login></Login>
+    ),
+  },
+  {
     path: "/payment",
     element: (
       <PaymentPage />

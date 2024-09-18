@@ -101,6 +101,13 @@ class EmployeeSerializer(ModelSerializer):
 
 
 class FoodSerializer(ModelSerializer):
+    category = serializers.SerializerMethodField('get_category')
+
+    def get_category(self, obj):
+        cate = FoodCategory.objects.get(food=obj)
+
+        return FoodCategorySerializer(cate).data
+
     def to_representation(self, instance):
         rep = super().to_representation(instance)
         rep['image'] = instance.image.url
@@ -139,7 +146,7 @@ class RestaurantSerializer(ModelSerializer):
         return category
 
     def get_foods(self, restaurant):
-        foods = restaurant.food_set.filter(active=True)
+        foods = restaurant.food_set.filter(active=True).order_by('-created_date')
         serializer = FoodSerializer(foods, many=True)
         return serializer.data
 

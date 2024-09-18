@@ -49,12 +49,15 @@ export default function Login({setOpenLogin}) {
 
   return (
     <> 
-    {user ?   
+    {/* {user ?   
         <div>
             <image src={user.avatar} />
         </div>
     : 
-        <div className='flex items-center justify-center absolute top-0 bottom-0 left-0 right-0 bg-gray-300 z-30 bg-opacity-50'>
+        }
+         */}
+
+<div className='flex items-center justify-center absolute top-0 bottom-0 left-0 right-0 bg-gray-300 z-30 bg-opacity-50'>
             <div className='w-1/3 bg-white h-1/3 p-4 rounded-xl'> 
                 <div className='ml-auto w-full flex items-end flex-col'> 
                     <IconButton className='bg-transparent shadow-none rounded-full' onClick={setOpenLogin}>
@@ -73,7 +76,7 @@ export default function Login({setOpenLogin}) {
                 </div>
 
             </div>
-        </div>}
+        </div>
     </>
     
     
