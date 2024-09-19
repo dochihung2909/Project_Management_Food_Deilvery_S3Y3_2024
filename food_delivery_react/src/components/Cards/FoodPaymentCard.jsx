@@ -9,7 +9,7 @@ export default function FoodPaymentCard({food}) {
         </div>
 
         <div className='flex'>
-            <img src='https://food-cms.grab.com/compressed_webp/items/VNITE2024052812253296718/detail/menueditor_item_26a319d791a44987ab48c7ac4ce7e09f_1716899114449637637.webp' 
+            <img src={food.food.image}
                 className='h-14 w-14 rounded-lg' />
             <div className='mx-4'>
                 <p className='text-lg font-medium'>

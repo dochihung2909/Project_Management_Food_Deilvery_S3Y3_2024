@@ -39,9 +39,10 @@ const PaymentPage = () => {
             console.log(data) 
             
             if (response.status == 201) {
+
                 
-                setTimeout(() => {
-                    navigate('/') 
+                setTimeout(() => { 
+                    navigate('/payment-success')
                 }, 1000)
             }
         }

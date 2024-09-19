@@ -99,6 +99,12 @@ const router = createBrowserRouter([
       <PaymentPage />
     ),
   },
+  {
+    path: "/payment-success",
+    element: (
+      <PaymentSuccess />
+    ),
+  },
 ]);
 
 

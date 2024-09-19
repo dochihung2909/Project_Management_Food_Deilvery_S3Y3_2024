@@ -66,7 +66,7 @@ export default function FoodCard({ food }) {
         <CardHeader color="blue-gray" className="relative h-32 w-32 m-0">
           <img
             className='object-cover h-32 w-32'
-            src='https://food-cms.grab.com/compressed_webp/merchants/5-C4CEPAAEL4CJJA/hero/782d2085-530e-48fa-9fa2-f392d8f54a4f__store_cover__2023__08__01__06__31__39.webp'
+            src={food.image}
             alt="card-image"
           />
         </CardHeader>

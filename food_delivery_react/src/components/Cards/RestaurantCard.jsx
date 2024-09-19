@@ -14,11 +14,13 @@ export default function RestaurantCard({restaurant}) {
     return (
         <Card onClick={handleNavigateRestaurant} className="mt-6 w-full cursor-pointer">
           <CardHeader color="blue-gray" className="relative h-40">
-            <img
-                className='object-cover w-full h-full'
-              src='https://food-cms.grab.com/compressed_webp/merchants/5-C4CEPAAEL4CJJA/hero/782d2085-530e-48fa-9fa2-f392d8f54a4f__store_cover__2023__08__01__06__31__39.webp'
-              alt="card-image"
-            />
+            <div className='w-full h-full'>
+              <img
+                  className='object-fit w-full h-full'
+                src={restaurant?.image}
+                alt="card-image"
+              /> 
+            </div>
           </CardHeader>
           <CardBody className='p-4'>
             <Typography variant="h5" color="blue-gray" className="mb-2">
