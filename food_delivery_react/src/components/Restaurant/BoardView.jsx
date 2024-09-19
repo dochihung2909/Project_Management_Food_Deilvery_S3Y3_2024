@@ -53,7 +53,7 @@ const BoardView = ({ restaurant, selecting, foods = [], getRestaurant }) => {
         if (response.status == 200) {
             const data = await response.json()
 
-            // setOrders(data)
+            setOrders(data)
 
             // console.log(data)
         }
