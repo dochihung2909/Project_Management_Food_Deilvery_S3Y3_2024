@@ -13,27 +13,39 @@ def initial_user_data(apps, schema_editor):
 
     # Danh sách người dùng
     user = [
-        {'first_name': 'Thành', 'last_name': 'Tâm', 'username': 'thangtam', 'role_id': 1, 'password': 'Thangtam@123'},
-        {'first_name': 'Bảo', 'last_name': 'Hưng', 'username': 'baohung', 'role_id': 1, 'password': 'Baohung@123'},
-        {'first_name': 'Linh', 'last_name': 'Mai', 'username': 'linhmai', 'role_id': 1, 'password': 'Linhmai@123'},
+        {'first_name': 'Thành', 'last_name': 'Tâm', 'username': 'thangtam', 'role_id': 1, 'password': 'Thangtam@123',
+         'avatar': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726756063/Avatar_Profile_Boy_1.jpg'},
+        {'first_name': 'Bảo', 'last_name': 'Hưng', 'username': 'baohung', 'role_id': 1, 'password': 'Baohung@123',
+         'avatar': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726756063/Avatar_Profile_Boy_1.jpg'},
+        {'first_name': 'Linh', 'last_name': 'Mai', 'username': 'linhmai', 'role_id': 1, 'password': 'Linhmai@123',
+         'avatar': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726756063/Avatar_Profile_Girl_1.jpg'},
     ]
 
     # Danh sách chủ sở hữu
     owner = [
-        {'first_name': 'Anh', 'last_name': 'Phúc', 'username': 'anhphuc', 'role_id': 2, 'password': 'Anhphuc@123'},
+        {'first_name': 'Anh', 'last_name': 'Phúc', 'username': 'anhphuc', 'role_id': 2, 'password': 'Anhphuc@123',
+         'avatar': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726756063/Avatar_Profile_Boy_1.jpg'},
         {'first_name': 'Hương', 'last_name': 'Quyên', 'username': 'huongquyen', 'role_id': 2,
-         'password': 'Huongquyen@123'},
-        {'first_name': 'Long', 'last_name': 'Khôi', 'username': 'longkhoi', 'role_id': 2, 'password': 'Longkhoi@123'},
-        {'first_name': 'Yến', 'last_name': 'Mai', 'username': 'yenmai', 'role_id': 2, 'password': 'Yenmai@123'},
-        {'first_name': 'Khoa', 'last_name': 'Hòa', 'username': 'khoahoa', 'role_id': 2, 'password': 'Khoahoa@123'},
+         'password': 'Huongquyen@123',
+         'avatar': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726756063/Avatar_Profile_Girl_1.jpg'},
+        {'first_name': 'Long', 'last_name': 'Khôi', 'username': 'longkhoi', 'role_id': 2, 'password': 'Longkhoi@123',
+         'avatar': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726756063/Avatar_Profile_Boy_1.jpg'},
+        {'first_name': 'Yến', 'last_name': 'Mai', 'username': 'yenmai', 'role_id': 2, 'password': 'Yenmai@123',
+         'avatar': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726756063/Avatar_Profile_Girl_1.jpg'},
+        {'first_name': 'Khoa', 'last_name': 'Hòa', 'username': 'khoahoa', 'role_id': 2, 'password': 'Khoahoa@123',
+         'avatar': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726756063/Avatar_Profile_Boy_1.jpg'},
     ]
 
     # Danh sách nhân viên
     employee = [
-        {'first_name': 'Mỹ', 'last_name': 'Phương', 'username': 'myphuong', 'role_id': 3, 'password': 'Myphuong@123'},
-        {'first_name': 'Như', 'last_name': 'Anh', 'username': 'nhuanh', 'role_id': 3, 'password': 'Nhuanh@123'},
-        {'first_name': 'Nam', 'last_name': 'Tú', 'username': 'namtu', 'role_id': 3, 'password': 'Namtu@123'},
-        {'first_name': 'Thu', 'last_name': 'Hương', 'username': 'thuhuong', 'role_id': 3, 'password': 'Thuhuong@123'},
+        {'first_name': 'Mỹ', 'last_name': 'Phương', 'username': 'myphuong', 'role_id': 3, 'password': 'Myphuong@123',
+         'avatar': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726756063/Avatar_Profile_Girl_1.jpg'},
+        {'first_name': 'Như', 'last_name': 'Anh', 'username': 'nhuanh', 'role_id': 3, 'password': 'Nhuanh@123',
+         'avatar': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726756063/Avatar_Profile_Girl_1.jpg'},
+        {'first_name': 'Nam', 'last_name': 'Tú', 'username': 'namtu', 'role_id': 3, 'password': 'Namtu@123',
+         'avatar': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726756063/Avatar_Profile_Boy_1.jpg'},
+        {'first_name': 'Thu', 'last_name': 'Hương', 'username': 'thuhuong', 'role_id': 3, 'password': 'Thuhuong@123',
+         'avatar': 'https://res.cloudinary.com/dhitdivyi/image/upload/v1726756063/Avatar_Profile_Girl_1.jpg'},
     ]
 
     users = user + owner + employee
@@ -46,7 +58,7 @@ def initial_user_data(apps, schema_editor):
             password=user['password'],
             role_id=user['role_id'],
             phone_number='0351234567',
-            avatar='https://res.cloudinary.com/dhitdivyi/image/upload/v1725474107/m82nkwmtg5x7hh2uny7q.jpg'
+            avatar=user['avatar']
         )
 
 
